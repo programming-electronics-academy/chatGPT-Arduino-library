@@ -25,14 +25,25 @@ public:
   class Invalid {};
 
   ChatBox(int maxTokens, int numMsgs);
-  int maxTokens() const { return _maxTokens; }
+  
+  // Getters
+  int maxTokens() const {
+    return _maxTokens;
+  }
+  int numMessages() const {
+    return _numMsgs;
+  }
+
+  // Setters
+  int putMessage(char * msg); 
+
 
 private:
   int _maxTokens;
   int _numMsgs;
+  Message * _messages;
 };
 
-bool is_chatBox();
 
 }  //close namespace
 
