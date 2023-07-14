@@ -5,6 +5,7 @@ namespace ChatGPTuino {
 
 #define MIN_TOKENS 50
 #define MIN_MESSAGES 1
+#define CHARS_PER_TOKEN 6
 
 class ChatBox {
 
@@ -21,27 +22,45 @@ class ChatBox {
     char content[];
   };
 
+  // struct Message {
+  //   enum Roles role;
+  //   char * content;
+  // };
+
+
 public:
-  class Invalid {};
 
   ChatBox(int maxTokens, int numMsgs);
-  
+
   // Getters
   int maxTokens() const {
     return _maxTokens;
   }
+
   int numMessages() const {
     return _numMsgs;
   }
 
-  // Setters
-  int putMessage(char * msg); 
+  int msgCount() const {
+    return _msgCount;
+  }
 
+  int MAX_MESSAGE_LENGTH() const {
+    return _MAX_MESSAGE_LENGTH;
+  }
+
+  // Setters
+  int putMessage(char* msg, int msgLength);
 
 private:
   int _maxTokens;
   int _numMsgs;
+  int _msgCount;
+  int _MAX_MESSAGE_LENGTH;
+
   Message * _messages;
+  //Message _messages[];
+
 };
 
 
