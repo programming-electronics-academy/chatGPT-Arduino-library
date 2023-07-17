@@ -19,14 +19,8 @@ class ChatBox {
 
   struct Message {
     enum Roles role;
-    char content[];
+    char * content;
   };
-
-  // struct Message {
-  //   enum Roles role;
-  //   char * content;
-  // };
-
 
 public:
 
@@ -49,6 +43,15 @@ public:
     return _MAX_MESSAGE_LENGTH;
   }
 
+  // Dev
+  char * contentPtrs(int i) const {
+    return _messages[i].content;
+  };
+  
+  Roles * rolePtrs(int i) const {
+    return &_messages[i].role;
+  };
+
   // Setters
   int putMessage(char* msg, int msgLength);
 
@@ -59,7 +62,6 @@ private:
   int _MAX_MESSAGE_LENGTH;
 
   Message * _messages;
-  //Message _messages[];
 
 };
 
