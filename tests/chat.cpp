@@ -10,10 +10,12 @@ ChatBox::ChatBox(int maxTokens, const int numMsgs)
     _msgCount{ 0 },
     _MAX_MESSAGE_LENGTH{ _maxTokens * CHARS_PER_TOKEN } {
   
-  _messages = new Message[numMsgs];
+  _messages = new Message[_numMsgs];
+
+  char * buf = (char*) malloc(_numMsgs * _MAX_MESSAGE_LENGTH * sizeof(char));
 
   for (int i = 0; i < _numMsgs; i++) {
-    _messages[i].content = (char*) malloc(_MAX_MESSAGE_LENGTH * sizeof(char));
+    _messages[i].content = buf + i*_MAX_MESSAGE_LENGTH * sizeof(char);
   }
 
 };

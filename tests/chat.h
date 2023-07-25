@@ -13,7 +13,7 @@ class ChatBox {
                user,
                assistant };
 
-  const char RoleNames[][10] = { "system",
+  const char RoleNames[3][10] = { "system",
                                   "user",
                                   "assistant" };
 
