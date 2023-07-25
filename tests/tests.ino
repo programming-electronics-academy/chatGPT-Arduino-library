@@ -21,30 +21,12 @@ test(malloc_allocates_space_for_messages) {
     Serial.print(" - content PTR -> ");
     Serial.println((long)chat.contentPtrs(i));
     
-    // int contentPtrA = (int)chat.contentPtrs(i);
-    // int contentPtrB = (int)chat.contentPtrs(i + 1);
-    // int actual = contentPtrB - contentPtrA;
-    // int expected = chat.MAX_MESSAGE_LENGTH() * sizeof(char);
+    int contentPtrA = (long)chat.contentPtrs(i);
+    int contentPtrB = (long)chat.contentPtrs(i + 1);
+    int actual = contentPtrB - contentPtrA;
+    int expected = chat.MAX_MESSAGE_LENGTH() * sizeof(char);
 
-    // int rolePtrA = (int)chat.rolePtrs(i);
-    // int rolePtrB = (int)chat.rolePtrs(i + 1);
-
-    // Serial.print("contentPtrA ");
-    // Serial.println(contentPtrA);
-    // Serial.print("contentPtrB ");
-    // Serial.println(contentPtrB);
-    // Serial.print("Actual ");
-    // Serial.println(actual);
-    
-    // Serial.print("rolePtrA ");
-    // Serial.println(rolePtrA);
-    // Serial.print("rolePtrB ");
-    // Serial.println(rolePtrB);
-    
-    // Serial.println(rolePtrA);
-    // Serial.println(rolePtrB);
-    // Serial.println(actual);
-    // assertEqual(actual, expected);
+    assertEqual(actual, expected);
   }
 }
 // test(putMessage_puts_message_in_next_available_slot) {

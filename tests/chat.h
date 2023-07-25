@@ -19,13 +19,16 @@ class ChatBox {
 
   struct Message {
     enum Roles role;
-    char * content;
+    char* content;
   };
 
 public:
-
+  // @param maxTokens
+  // @param numMsgs
   ChatBox(int maxTokens, int numMsgs);
-
+  
+  ~ChatBox();
+  
   // Getters
   int maxTokens() const {
     return _maxTokens;
@@ -44,11 +47,11 @@ public:
   }
 
   // Dev
-  char * contentPtrs(int i) const {
+  char* contentPtrs(int i) const {
     return _messages[i].content;
   };
-  
-  Roles * rolePtrs(int i) const {
+
+  Roles* rolePtrs(int i) const {
     return &_messages[i].role;
   };
 
@@ -61,8 +64,7 @@ private:
   int _msgCount;
   int _MAX_MESSAGE_LENGTH;
 
-  Message * _messages;
-
+  Message* _messages;
 };
 
 
