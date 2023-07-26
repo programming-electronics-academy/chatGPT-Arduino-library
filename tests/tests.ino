@@ -1,6 +1,9 @@
 #include "chat.h"
 #include <AUnit.h>
 
+// Upload isue for XIAO -> hold B (boot) button, press and release R (reset) button, release B button.  Upload
+
+
 test(ChatBox_itializes_with_valid_values) {
   ChatGPTuino::ChatBox chat{ -5, -5 };
   assertEqual(chat.numMessages(), MIN_MESSAGES);
@@ -8,9 +11,10 @@ test(ChatBox_itializes_with_valid_values) {
   assertEqual(CHARS_PER_TOKEN * chat.maxTokens(), chat.MAX_MESSAGE_LENGTH());
 }
 
-test(malloc_allocates_space_for_messages) {
+test(init_allocates_space_for_message_contexts) {
   
   ChatGPTuino::ChatBox chat{ 10, 5 };
+  chat.init();
 
   for (int i = 0; i < chat.numMessages() - 1; i++) {
     
@@ -41,5 +45,6 @@ void setup() {
 }
 
 void loop() {
+  Serial.println("testing");
   aunit::TestRunner::run();
 }

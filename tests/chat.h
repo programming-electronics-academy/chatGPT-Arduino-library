@@ -26,8 +26,9 @@ public:
   // @param maxTokens
   // @param numMsgs
   ChatBox(int maxTokens, int numMsgs);
-  
   ~ChatBox();
+  
+  bool init();
   
   // Getters
   int maxTokens() const {
