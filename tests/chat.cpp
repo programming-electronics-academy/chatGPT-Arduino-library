@@ -51,16 +51,16 @@ char* ChatBox::getLastMessage() const {
     // No message yet, do nothing.
     Serial.println("No messages to get.");
   } else {
-    
-    Serial.print("(_msgCount - 1) % _maxMsgs) ->");
-    Serial.println((_msgCount - 1) % _maxMsgs);
     return _messages[(_msgCount - 1) % _maxMsgs].content;
   }
 }
 
 int ChatBox::putMessage(char* msg) {
   _msgCount++;
-  strncpy(_messages[(_msgCount % _maxMsgs)].content, msg, _MAX_MESSAGE_LENGTH);
+  memset(_messages[(_msgCount % _maxMsgs)].content, 0, _MAX_MESSAGE_LENGTH);
+  memcpy(_messages[(_msgCount % _maxMsgs)].content, msg, _MAX_MESSAGE_LENGTH);
+  Serial.print("Your Message from Put Message ->");
+  Serial.println(_messages[(_msgCount % _maxMsgs)].content);
 }
 
 
