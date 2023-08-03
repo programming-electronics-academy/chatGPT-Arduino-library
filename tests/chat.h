@@ -27,16 +27,16 @@ public:
   // @param numMsgs
   ChatBox(int maxTokens, int numMsgs);
   ~ChatBox();
-  
+
   bool init();
-  
+
   // Getters
   int maxTokens() const {
     return _maxTokens;
   }
 
   int numMessages() const {
-    return _numMsgs;
+    return _maxMsgs;
   }
 
   int msgCount() const {
@@ -47,6 +47,9 @@ public:
     return _MAX_MESSAGE_LENGTH;
   }
 
+  char* getLastMessage() const;
+
+  /* STEVE Q3 - I have always used byte, int, long as datatypes, but I am starting to wonder if ought to use fixed width types uint8_t, uint16_t, etc... */
   // Dev
   char* contentPtrs(int i) const {
     return _messages[i].content;
@@ -57,11 +60,12 @@ public:
   };
 
   // Setters
-  int putMessage(char* msg, int msgLength);
+  int putMessage(char* msg);
+
 
 private:
   int _maxTokens;
-  int _numMsgs;
+  int _maxMsgs;
   int _msgCount;
   int _MAX_MESSAGE_LENGTH;
 
