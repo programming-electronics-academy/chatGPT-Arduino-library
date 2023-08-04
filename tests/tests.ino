@@ -17,17 +17,17 @@ test(init_allocates_space_for_message_contexts) {
 
   for (int i = 0; i < chat.numMessages() - 1; i++) {
 
-    Serial.print(i);
-    Serial.print(" - role PTR -> ");
-    Serial.println((long)chat.rolePtrs(i));
-    Serial.print(i);
-    Serial.print(" - content PTR -> ");
-    Serial.println((long)chat.contentPtrs(i));
+    // Serial.print(i);
+    // Serial.print(" - role PTR -> ");
+    // Serial.println((long)chat.rolePtrs(i));
+    // Serial.print(i);
+    // Serial.print(" - content PTR -> ");
+    // Serial.println((long)chat.contentPtrs(i));
 
-    int contentPtrA = (long)chat.contentPtrs(i);
-    int contentPtrB = (long)chat.contentPtrs(i + 1);
-    int actual = contentPtrB - contentPtrA;
-    int expected = chat.MAX_MESSAGE_LENGTH() * sizeof(char);
+    long contentPtrA = (long)chat.contentPtrs(i);
+    long contentPtrB = (long)chat.contentPtrs(i + 1);
+    long actual = contentPtrB - contentPtrA;
+    long expected = chat.MAX_MESSAGE_LENGTH() * sizeof(char);
 
     assertEqual(expected, actual);
   }
@@ -38,33 +38,15 @@ test(putMessage_puts_message_in_next_available_slot) {
   ChatGPTuino::ChatBox chat{ 10, 4 };
   chat.init();
 
-  // Serial.print("chat msgCount ->");
-  // Serial.println(chat.msgCount());
+  char *testMessage = "testing_1";
+  chat.putMessage(testMessage);
 
-  char buf[chat.MAX_MESSAGE_LENGTH()] = "this is my message";
-  chat.putMessage(buf);
-  Serial.println("Your Message-> ");
-  Serial.print(chat.getLastMessage());
+  assertEqual((const char *)chat.getLastMessage(), (const char *)testMessage);
 
-  // const byte MSG_SIZE = chat.MAX_MESSAGE_LENGTH();
-  // char testMessage_Expected[MSG_SIZE] = "YO, I am Testing!";
-  // char testMessage_Actual[MSG_SIZE] = "Testing";
-  
-  // // char * testMessage_Expected = "Testing";
-  // char * testMessage_Actual = "Testing";
-  
+  char *testMessage2 = "testing_2";
+  chat.putMessage(testMessage2);
 
-  
-  // chat.putMessage(testMessage_Expected);
-
-  // Serial.print("chat msgCount ->");
-  // Serial.println(chat.msgCount());
-  
-  // Serial.println("Last Message ->");
-  // Serial.println(chat.getLastMessage());
-
-
-  // assertEqual((const char *)chat.getLastMessage(), (const char *)testMessage_Actual);
+  assertEqual((const char *)chat.getLastMessage(), (const char *)testMessage2);
 }
 
 void setup() {

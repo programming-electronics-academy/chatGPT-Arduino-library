@@ -56,11 +56,8 @@ char* ChatBox::getLastMessage() const {
 }
 
 int ChatBox::putMessage(char* msg) {
+  strcpy(_messages[(_msgCount % _maxMsgs)].content,msg);
   _msgCount++;
-  memset(_messages[(_msgCount % _maxMsgs)].content, 0, _MAX_MESSAGE_LENGTH);
-  memcpy(_messages[(_msgCount % _maxMsgs)].content, msg, _MAX_MESSAGE_LENGTH);
-  Serial.print("Your Message from Put Message ->");
-  Serial.println(_messages[(_msgCount % _maxMsgs)].content);
 }
 
 
