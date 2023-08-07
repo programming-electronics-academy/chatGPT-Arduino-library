@@ -4,8 +4,9 @@
 namespace ChatGPTuino {
 
 #define MIN_TOKENS 50
-#define MIN_MESSAGES 1
+#define MIN_MESSAGES 5
 #define CHARS_PER_TOKEN 6
+#define API_KEY_SIZE 100
 
 class ChatBox {
 
@@ -28,7 +29,7 @@ public:
   ChatBox(int maxTokens, int numMsgs);
   ~ChatBox();
 
-  bool init();
+  bool init(const char * key);
 
   // Getters
   int maxTokens() const {
@@ -68,7 +69,7 @@ private:
   int _maxMsgs;
   int _msgCount;
   int _MAX_MESSAGE_LENGTH;
-
+  char * _secret_key;
   Message* _messages;
 };
 
