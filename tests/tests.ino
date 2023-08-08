@@ -38,12 +38,32 @@ test(putMessage_puts_message_in_next_available_slot) {
   char *testMessage = "testing_1";
   chat.putMessage(testMessage);
 
-  assertEqual((const char *)chat.getLastMessage(), (const char *)testMessage);
+  assertEqual((const char *)chat.getLastMessageContent(), (const char *)testMessage);
 
   char *testMessage2 = "testing_2";
   chat.putMessage(testMessage2);
 
-  assertEqual((const char *)chat.getLastMessage(), (const char *)testMessage2);
+  assertEqual((const char *)chat.getLastMessageContent(), (const char *)testMessage2);
+}
+
+test(putMessage_assigns_default_role_of_message_to_user) {
+  ChatGPTuino::ChatBox chat{ 10, 4 };
+  chat.init(test_key);
+
+  char *testMessage = "testing_1";
+  chat.putMessage(testMessage);
+
+  assertEqual(1, chat.getLastMessageRole());
+}
+
+test(putMessage_assigns_specified_role_to_message) {
+  ChatGPTuino::ChatBox chat{ 10, 4 };
+  chat.init(test_key);
+
+  char *testMessage = "testing_1";
+  chat.putMessage(testMessage, ChatGPTuino::Roles::assistant);
+
+  assertEqual(ChatGPTuino::Roles::assistant, chat.getLastMessageRole());
 }
 
 void setup() {

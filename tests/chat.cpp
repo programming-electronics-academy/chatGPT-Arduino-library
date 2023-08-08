@@ -60,18 +60,29 @@ bool ChatBox::init(const char* key) {
   }
 }
 
-char* ChatBox::getLastMessage() const {
+char* ChatBox::getLastMessageContent() const {
 
   if (_msgCount == 0) {
     // No message yet, do nothing.
-    Serial.println("No messages to get.");
+    Serial.println("No message to get.");
   } else {
     return _messages[(_msgCount - 1) % _maxMsgs].content;
   }
 }
 
-int ChatBox::putMessage(char* msg) {
+Roles ChatBox::getLastMessageRole() const {
+
+  if (_msgCount == 0) {
+    // No message yet, do nothing.
+    Serial.println("No message to get.");
+  } else {
+    return _messages[(_msgCount - 1) % _maxMsgs].role;
+  }
+}
+
+int ChatBox::putMessage(char* msg, Roles msgRole) {
   strcpy(_messages[(_msgCount % _maxMsgs)].content, msg);
+  _messages[(_msgCount % _maxMsgs)].role = msgRole;
   _msgCount++;
 }
 
