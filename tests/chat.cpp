@@ -10,7 +10,11 @@ ChatBox::ChatBox(int maxTokens = MIN_TOKENS, const int maxMsgs = MIN_MESSAGES)
   : _maxTokens{ maxTokens >= 0 ? maxTokens : MIN_TOKENS },
     _maxMsgs{ maxMsgs >= 0 ? maxMsgs : MIN_MESSAGES },
     _msgCount{ 0 },
-    _MAX_MESSAGE_LENGTH{ _maxTokens * CHARS_PER_TOKEN } {
+    _MAX_MESSAGE_LENGTH{ _maxTokens * CHARS_PER_TOKEN },
+    _DYNAMIC_JSON_DOC_SIZE{
+      (JSON_DATA_STRUCTURE_MEMORY_BASE + (_maxMsgs * JSON_DATA_STRUCTURE_MEMORY_PER_MSG)) +
+      (JSON_KEY_STRING_MEMORY_BASE + ((_MAX_MESSAGE_LENGTH + JSON_VALUE_STRING_MEMORY_PER_MSG) * _maxMsgs)) +
+      JSON_MEMORY_SLACK} {
 
   /* STEVE Q4 ----Maybe I should move this to init()?  
  Maybe I should be be checking that "new" succeeds in it's memory allocation?*/
@@ -24,7 +28,7 @@ ChatBox::~ChatBox() {
   // Free message content strings
   free(_messages[0].content);  // This is the pointer returned from init()
   free(_secret_key);
-  
+
   // Delete message structs
   delete[] _messages;
 };
@@ -84,6 +88,12 @@ int ChatBox::putMessage(char* msg, Roles msgRole) {
   strcpy(_messages[(_msgCount % _maxMsgs)].content, msg);
   _messages[(_msgCount % _maxMsgs)].role = msgRole;
   _msgCount++;
+}
+
+DynamicJsonDocument ChatBox::generateJsonRequestBody() {
+
+  DynamicJsonDocument doc(100);
+  return doc;
 }
 
 

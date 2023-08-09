@@ -9,9 +9,11 @@ test(ChatBox_itializes_with_valid_values) {
 
   ChatGPTuino::ChatBox chat{ -5, -5 };
   chat.init(test_key);
+  long testDocSize = 2976;
   assertEqual(chat.numMessages(), MIN_MESSAGES);
   assertEqual(chat.maxTokens(), MIN_TOKENS);
   assertEqual(CHARS_PER_TOKEN * chat.maxTokens(), chat.MAX_MESSAGE_LENGTH());
+  assertEqual(testDocSize, chat.DYNAMIC_JSON_DOC_SIZE());
 }
 
 test(init_allocates_space_for_message_contexts) {
@@ -64,6 +66,17 @@ test(putMessage_assigns_specified_role_to_message) {
   chat.putMessage(testMessage, ChatGPTuino::Roles::assistant);
 
   assertEqual(ChatGPTuino::Roles::assistant, chat.getLastMessageRole());
+}
+
+test(generateJsonRequestBody_returns_valid_Json) {
+  ChatGPTuino::ChatBox chat{ 10, 4 };
+  chat.init(test_key);
+
+  char *testMessage = "JSON body testing";
+
+  DynamicJsonDocument testDoc = chat.generateJsonRequestBody();
+
+  assertEqual(0, 1);
 }
 
 void setup() {
