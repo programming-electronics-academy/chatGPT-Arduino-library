@@ -64,16 +64,22 @@ bool ChatBox::init(const char* key) {
   }
 }
 
+
 char* ChatBox::getLastMessageContent() const {
 
   if (_msgCount == 0) {
     // No message yet, do nothing.
     Serial.println("No message to get.");
+    return nullptr; // I think this is what I want to return in the case there us 
   } else {
     return _messages[(_msgCount - 1) % _maxMsgs].content;
   }
 }
 
+/* STEVE Q6 
+I have this function that returns a role, but only if a message exists.  If no message exist, it returns nothing...
+Is there something I can return that makes sense, like "null" role?
+*/
 Roles ChatBox::getLastMessageRole() const {
 
   if (_msgCount == 0) {
@@ -88,6 +94,8 @@ int ChatBox::putMessage(char* msg, Roles msgRole) {
   strcpy(_messages[(_msgCount % _maxMsgs)].content, msg);
   _messages[(_msgCount % _maxMsgs)].role = msgRole;
   _msgCount++;
+
+  return _msgCount;
 }
 
 DynamicJsonDocument ChatBox::generateJsonRequestBody() {

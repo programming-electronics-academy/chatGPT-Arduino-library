@@ -1,10 +1,13 @@
 #include "chat.h"
 #include <AUnit.h>
 
+#define TESTING_ON 1
+
 /* Assert( expected value (Known Value), actual value(value under test)) */
 
 const char *test_key = "sk-VT65uEtK8cUfB1KuEx0QT3BlbkFJHnIvsADF3rJw5-XXXXXX";
 
+#if TESTING_ON
 test(ChatBox_itializes_with_valid_values) {
 
   ChatGPTuino::ChatBox chat{ -5, -5 };
@@ -79,10 +82,21 @@ test(generateJsonRequestBody_returns_valid_Json) {
   assertEqual(0, 1);
 }
 
+#endif
+
 void setup() {
   Serial.begin(115200);
 }
 
 void loop() {
+
+#if TESTING_ON
   aunit::TestRunner::run();
+#else
+  static bool runOnce = true;
+  if (runOnce) {
+    helloChatGPT();
+    runOnce = false;
+  }
+#endif
 }
