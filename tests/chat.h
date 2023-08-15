@@ -1,7 +1,7 @@
 #ifndef chatGPTuino_h
 #define chatGPTuino_h
 
-#include <ArduinoJson.h>       // Handle JSON formatting for API calls
+#include <ArduinoJson.h>  // Handle JSON formatting for API calls
 
 namespace ChatGPTuino {
 
@@ -9,6 +9,7 @@ namespace ChatGPTuino {
 #define MIN_MESSAGES 5
 #define CHARS_PER_TOKEN 6
 #define API_KEY_SIZE 100
+#define MODEL_NAME_SIZE 50
 
 // These constants are used for calculating the size of Dynamic JSON Array
 // TODO Consider using the JSON_ARRAY_SIZE and JSON_OBJECT_SIZE macros
@@ -16,7 +17,7 @@ namespace ChatGPTuino {
 #define JSON_DATA_STRUCTURE_MEMORY_BASE 32
 #define JSON_DATA_STRUCTURE_MEMORY_PER_MSG 48
 
-#define JSON_KEY_STRING_MEMORY_BASE 29 
+#define JSON_KEY_STRING_MEMORY_BASE 29
 #define JSON_VALUE_STRING_MEMORY_PER_MSG 35
 
 #define JSON_MEMORY_SLACK 1000
@@ -31,7 +32,6 @@ const char RoleNames[3][10] = { "system",
 
 class ChatBox {
 
-
   struct Message {
     enum Roles role;
     char* content;
@@ -43,7 +43,7 @@ public:
   ChatBox(int maxTokens, int numMsgs);
   ~ChatBox();
 
-  bool init(const char* key);
+  bool init(const char* key, const char* model);
 
   // Getters
   int maxTokens() const {
@@ -76,6 +76,10 @@ public:
     return _messages[i].content;
   };
 
+  char* model() const {
+    return _model;
+  };
+
   Roles* rolePtrs(int i) const {
     return &_messages[i].role;
   };
@@ -83,6 +87,7 @@ public:
   // Setters
   int putMessage(char* msg, Roles msgRole = user);
 
+  // Functions
   DynamicJsonDocument generateJsonRequestBody();
 
 
@@ -93,6 +98,7 @@ private:
   int _MAX_MESSAGE_LENGTH;
   long _DYNAMIC_JSON_DOC_SIZE;
   char* _secret_key;
+  char* _model;
   Message* _messages;
 };
 

@@ -34,7 +34,7 @@ ChatBox::~ChatBox() {
 };
 
 
-bool ChatBox::init(const char* key) {
+bool ChatBox::init(const char* key,const char* model) {
 
   // Allocate space for API key and assign
   char* keyAlloc = (char*)malloc(API_KEY_SIZE * sizeof(char));
@@ -44,6 +44,17 @@ bool ChatBox::init(const char* key) {
     strcpy(_secret_key, key);
   } else {
     Serial.println("keyAlloc failed");
+    return false;
+  }
+  
+  // Allocate space for model and assign
+  char* modelAlloc = (char*)malloc(MODEL_NAME_SIZE * sizeof(char));
+
+  if (modelAlloc) {
+    _model = modelAlloc;
+    strcpy(_model, model);
+  } else {
+    Serial.println("modelAlloc failed");
     return false;
   }
 
@@ -64,13 +75,12 @@ bool ChatBox::init(const char* key) {
   }
 }
 
-
 char* ChatBox::getLastMessageContent() const {
 
   if (_msgCount == 0) {
     // No message yet, do nothing.
     Serial.println("No message to get.");
-    return nullptr; // I think this is what I want to return in the case there us 
+    return nullptr; // I think this is what I want to return in the case there are no messages
   } else {
     return _messages[(_msgCount - 1) % _maxMsgs].content;
   }
@@ -100,7 +110,11 @@ int ChatBox::putMessage(char* msg, Roles msgRole) {
 
 DynamicJsonDocument ChatBox::generateJsonRequestBody() {
 
-  DynamicJsonDocument doc(100);
+  DynamicJsonDocument doc(_DYNAMIC_JSON_DOC_SIZE);
+
+  doc["model"] = _model;
+  doc["max_tokens"] = _maxTokens;
+
   return doc;
 }
 

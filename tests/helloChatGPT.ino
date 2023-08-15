@@ -3,7 +3,7 @@ void helloChatGPT() {
   Serial.println("helloChatGPT--> STARTED");
 
   ChatGPTuino::ChatBox chat{ 50, 20 };
-  chat.init(test_key);
+  chat.init(test_key,model);
 
   char *testMessage = "Hello ChatGPT!";
   chat.putMessage(testMessage);
