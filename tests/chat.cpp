@@ -135,5 +135,10 @@ DynamicJsonDocument ChatBox::generateJsonRequestBody() {
   return doc;
 }
 
+bool ChatBox::getResponse(){
+  return false;
+}
+
+
 
 }  // close namespace

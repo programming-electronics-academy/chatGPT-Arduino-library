@@ -93,10 +93,34 @@ test(generateJsonRequestBody_returns_valid_Json) {
   assertEqual((const char *)chat.getLastMessageContent(), (const char *)testDoc["messages"][1]["content"]);
 }
 
+test(getResponse_puts_response_in_messages){
+  ChatGPTuino::ChatBox chat{ 10, 4 };
+  chat.init(test_key, model);
+
+  char *testMessage = "Please respond with the only the word TEST";
+  chat.putMessage(testMessage, ChatGPTuino::Roles::user);
+
+  chat.getResponse();
+  assertEqual("TEST", (const char *)chat.getLastMessageContent());
+}
+
+
 #endif
 
 void setup() {
   Serial.begin(115200);
+
+  // WiFi Setup
+  WiFi.begin(ssid, password);
+
+  while (WiFi.status() != WL_CONNECTED) {
+    delay(500);
+    Serial.print(".");
+  }
+
+  Serial.print("WiFi connected to IP address: ");
+  Serial.println(WiFi.localIP());
+
 }
 
 void loop() {

@@ -90,6 +90,8 @@ public:
   // Functions
   DynamicJsonDocument generateJsonRequestBody();
 
+  bool getResponse();
+
 
 private:
   int _maxTokens;
