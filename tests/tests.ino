@@ -1,5 +1,7 @@
 #include "chat.h"
-#include <AUnit.h>
+#include <AUnit.h>    // Testing
+#include "secrets.h"  // Network name, password, and private API key
+#include <WiFi.h>     // ESP32
 
 #define TESTING_ON 1
 
@@ -19,6 +21,7 @@ test(ChatBox_itializes_with_valid_values) {
   assertEqual(chat.maxTokens(), MIN_TOKENS);
   assertEqual(CHARS_PER_TOKEN * chat.maxTokens(), chat.MAX_MESSAGE_LENGTH());
   assertEqual(testDocSize, chat.DYNAMIC_JSON_DOC_SIZE());
+  assertEqual("https://api.openai.com/v1/chat/completions", (const char *)chat.openAPIendPoint());
 }
 
 test(init_allocates_space_for_message_contexts) {
@@ -79,21 +82,21 @@ test(generateJsonRequestBody_returns_valid_Json) {
 
   char *testMessage = "JSON body testing";
   chat.putMessage(testMessage, ChatGPTuino::Roles::user);
-  
+
   DynamicJsonDocument testDoc = chat.generateJsonRequestBody();
 
   assertEqual((const char *)model, (const char *)testDoc["model"]);
   assertEqual(chat.maxTokens(), testDoc["max_tokens"]);
   assertEqual((const char *)chat.getLastMessageContent(), (const char *)testDoc["messages"][0]["content"]);
-  
+
   char *testMessage2 = "JSON body testing2";
   chat.putMessage(testMessage2, ChatGPTuino::Roles::user);
   testDoc = chat.generateJsonRequestBody();
-  
+
   assertEqual((const char *)chat.getLastMessageContent(), (const char *)testDoc["messages"][1]["content"]);
 }
 
-test(getResponse_puts_response_in_messages){
+test(getResponse_puts_response_in_messages) {
   ChatGPTuino::ChatBox chat{ 10, 4 };
   chat.init(test_key, model);
 
@@ -120,7 +123,6 @@ void setup() {
 
   Serial.print("WiFi connected to IP address: ");
   Serial.println(WiFi.localIP());
-
 }
 
 void loop() {

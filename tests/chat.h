@@ -22,6 +22,45 @@ namespace ChatGPTuino {
 
 #define JSON_MEMORY_SLACK 1000
 
+
+#define PORT 443                               // The port you'll connect to on the server - this is standard.
+#define SERVER_RESPONSE_WAIT_TIME (15 * 1000)  // How long to wait for a server response (seconds * 1000)
+
+// Steve Q8 - I wanted to have these constants defined below, but I was getting a "first defined here" error
+// when using them here, so I made each of these private data members, and initialize them in the constructor.
+// Clearly, there is some error in my thinking about where constant data should go...
+
+/*************** Open AI endpoint and connection details ****************/
+// const char* openAPIendPoint = "https://api.openai.com/v1/chat/completions";
+// const char* server = "api.openai.com";
+
+//OpenAI API endpoint root certificate used to ensure response is actually from OpenAPI
+/*
+const char* rootCACertificate =
+  "-----BEGIN CERTIFICATE-----\n"
+  "MIIDdzCCAl+gAwIBAgIEAgAAuTANBgkqhkiG9w0BAQUFADBaMQswCQYDVQQGEwJJ\n"
+  "RTESMBAGA1UEChMJQmFsdGltb3JlMRMwEQYDVQQLEwpDeWJlclRydXN0MSIwIAYD\n"
+  "VQQDExlCYWx0aW1vcmUgQ3liZXJUcnVzdCBSb290MB4XDTAwMDUxMjE4NDYwMFoX\n"
+  "DTI1MDUxMjIzNTkwMFowWjELMAkGA1UEBhMCSUUxEjAQBgNVBAoTCUJhbHRpbW9y\n"
+  "ZTETMBEGA1UECxMKQ3liZXJUcnVzdDEiMCAGA1UEAxMZQmFsdGltb3JlIEN5YmVy\n"
+  "VHJ1c3QgUm9vdDCCASIwDQYJKoZIhvcNAQEBBQADggEPADCCAQoCggEBAKMEuyKr\n"
+  "mD1X6CZymrV51Cni4eiVgLGw41uOKymaZN+hXe2wCQVt2yguzmKiYv60iNoS6zjr\n"
+  "IZ3AQSsBUnuId9Mcj8e6uYi1agnnc+gRQKfRzMpijS3ljwumUNKoUMMo6vWrJYeK\n"
+  "mpYcqWe4PwzV9/lSEy/CG9VwcPCPwBLKBsua4dnKM3p31vjsufFoREJIE9LAwqSu\n"
+  "XmD+tqYF/LTdB1kC1FkYmGP1pWPgkAx9XbIGevOF6uvUA65ehD5f/xXtabz5OTZy\n"
+  "dc93Uk3zyZAsuT3lySNTPx8kmCFcB5kpvcY67Oduhjprl3RjM71oGDHweI12v/ye\n"
+  "jl0qhqdNkNwnGjkCAwEAAaNFMEMwHQYDVR0OBBYEFOWdWTCCR1jMrPoIVDaGezq1\n"
+  "BE3wMBIGA1UdEwEB/wQIMAYBAf8CAQMwDgYDVR0PAQH/BAQDAgEGMA0GCSqGSIb3\n"
+  "DQEBBQUAA4IBAQCFDF2O5G9RaEIFoN27TyclhAO992T9Ldcw46QQF+vaKSm2eT92\n"
+  "9hkTI7gQCvlYpNRhcL0EYWoSihfVCr3FvDB81ukMJY2GQE/szKN+OMY3EU/t3Wgx\n"
+  "jkzSswF07r51XgdIGn9w/xZchMB5hbgF/X++ZRGjD8ACtPhSNzkE1akxehi/oCr0\n"
+  "Epn3o0WC4zxe9Z2etciefC7IpJ5OCBRLbf1wbWsaY71k5h+3zvDyny67G7fyUIhz\n"
+  "ksLi4xaNmjICq44Y3ekQEe5+NauQrz4wlHrQMz2nZQ/1/I6eYs9HRCwBXbsdtTLS\n"
+  "R9I4LtD+gdwyah617jzV/OeBHRnDJELqYzmp\n"
+  "-----END CERTIFICATE-----\n";
+
+  */
+
 enum Roles { sys,
              user,
              assistant };
@@ -67,6 +106,10 @@ public:
   }
 
   char* getLastMessageContent() const;
+  
+  const char* openAPIendPoint() const {
+    return _openAPIendPoint;
+  };
 
   Roles getLastMessageRole() const;
 
@@ -102,6 +145,10 @@ private:
   char* _secret_key;
   char* _model;
   Message* _messages;
+
+  const char* _openAPIendPoint;
+  const char* _server;
+  const char* _rootCACertificate;
 };
 
 
