@@ -12,9 +12,8 @@ ChatBox::ChatBox(int maxTokens = MIN_TOKENS, const int maxMsgs = MIN_MESSAGES)
     _msgCount{ 0 },
     _MAX_MESSAGE_LENGTH{ _maxTokens * CHARS_PER_TOKEN },
     _DYNAMIC_JSON_DOC_SIZE{
-      (JSON_DATA_STRUCTURE_MEMORY_BASE + (_maxMsgs * JSON_DATA_STRUCTURE_MEMORY_PER_MSG)) +
-      (JSON_KEY_STRING_MEMORY_BASE + ((_MAX_MESSAGE_LENGTH + JSON_VALUE_STRING_MEMORY_PER_MSG) * _maxMsgs)) +
-      JSON_MEMORY_SLACK} {
+      (JSON_DATA_STRUCTURE_MEMORY_BASE + (_maxMsgs * JSON_DATA_STRUCTURE_MEMORY_PER_MSG)) + (JSON_KEY_STRING_MEMORY_BASE + ((_MAX_MESSAGE_LENGTH + JSON_VALUE_STRING_MEMORY_PER_MSG) * _maxMsgs)) + JSON_MEMORY_SLACK
+    } {
 
   /* STEVE Q4 ----Maybe I should move this to init()?  
  Maybe I should be be checking that "new" succeeds in it's memory allocation?*/
@@ -34,7 +33,7 @@ ChatBox::~ChatBox() {
 };
 
 
-bool ChatBox::init(const char* key,const char* model) {
+bool ChatBox::init(const char* key, const char* model) {
 
   // Allocate space for API key and assign
   char* keyAlloc = (char*)malloc(API_KEY_SIZE * sizeof(char));
@@ -46,7 +45,7 @@ bool ChatBox::init(const char* key,const char* model) {
     Serial.println("keyAlloc failed");
     return false;
   }
-  
+
   // Allocate space for model and assign
   char* modelAlloc = (char*)malloc(MODEL_NAME_SIZE * sizeof(char));
 
@@ -80,7 +79,7 @@ char* ChatBox::getLastMessageContent() const {
   if (_msgCount == 0) {
     // No message yet, do nothing.
     Serial.println("No message to get.");
-    return nullptr; // I think this is what I want to return in the case there are no messages
+    return nullptr;  // I think this is what I want to return in the case there are no messages
   } else {
     return _messages[(_msgCount - 1) % _maxMsgs].content;
   }
@@ -114,6 +113,24 @@ DynamicJsonDocument ChatBox::generateJsonRequestBody() {
 
   doc["model"] = _model;
   doc["max_tokens"] = _maxTokens;
+
+  // Create nested array that will hold all the system, user, and assistant messages
+  JsonArray messagesJSON = doc.createNestedArray("messages");
+
+  int oldestMsgIdx = 0;
+
+  if (_msgCount >= _maxMsgs) {
+    oldestMsgIdx = _msgCount % _maxMsgs;
+  }
+
+  for (int i = 0; i < _msgCount && i < _maxMsgs; i++) {
+
+    messagesJSON[i]["role"] = RoleNames[_messages[oldestMsgIdx].role];
+    messagesJSON[i]["content"] = _messages[oldestMsgIdx].content;
+
+    oldestMsgIdx++;
+    oldestMsgIdx %= _maxMsgs;
+  }
 
   return doc;
 }

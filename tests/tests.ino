@@ -78,10 +78,19 @@ test(generateJsonRequestBody_returns_valid_Json) {
   chat.init(test_key, model);
 
   char *testMessage = "JSON body testing";
-
+  chat.putMessage(testMessage, ChatGPTuino::Roles::user);
+  
   DynamicJsonDocument testDoc = chat.generateJsonRequestBody();
 
-  assertEqual(0, 1);
+  assertEqual((const char *)model, (const char *)testDoc["model"]);
+  assertEqual(chat.maxTokens(), testDoc["max_tokens"]);
+  assertEqual((const char *)chat.getLastMessageContent(), (const char *)testDoc["messages"][0]["content"]);
+  
+  char *testMessage2 = "JSON body testing2";
+  chat.putMessage(testMessage2, ChatGPTuino::Roles::user);
+  testDoc = chat.generateJsonRequestBody();
+  
+  assertEqual((const char *)chat.getLastMessageContent(), (const char *)testDoc["messages"][1]["content"]);
 }
 
 #endif
