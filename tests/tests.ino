@@ -3,6 +3,7 @@
 #include "secrets.h"  // Network name, password, and private API key
 #include <WiFi.h>     // ESP32
 
+
 #define TESTING_ON 1
 
 /* Assert( expected value (Known Value), actual value(value under test)) */
@@ -22,6 +23,7 @@ test(ChatBox_itializes_with_valid_values) {
   assertEqual(CHARS_PER_TOKEN * chat.maxTokens(), chat.MAX_MESSAGE_LENGTH());
   assertEqual(testDocSize, chat.DYNAMIC_JSON_DOC_SIZE());
   assertEqual("https://api.openai.com/v1/chat/completions", (const char *)chat.openAPIendPoint());
+  assertEqual("api.openai.com", (const char *)chat.server());
 }
 
 test(init_allocates_space_for_message_contexts) {
@@ -98,12 +100,12 @@ test(generateJsonRequestBody_returns_valid_Json) {
 
 test(getResponse_puts_response_in_messages) {
   ChatGPTuino::ChatBox chat{ 10, 4 };
-  chat.init(test_key, model);
+  chat.init(openAI_Private_key, model);
 
   char *testMessage = "Please respond with the only the word TEST";
   chat.putMessage(testMessage, ChatGPTuino::Roles::user);
-
   chat.getResponse();
+
   assertEqual("TEST", (const char *)chat.getLastMessageContent());
 }
 

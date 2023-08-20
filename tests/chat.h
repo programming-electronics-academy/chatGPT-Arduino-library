@@ -1,7 +1,13 @@
 #ifndef chatGPTuino_h
 #define chatGPTuino_h
 
-#include <ArduinoJson.h>  // Handle JSON formatting for API calls
+#include <ArduinoJson.h>       // Handle JSON formatting for API calls
+#include <WiFiClientSecure.h>  // ESP32
+
+/* #Steve Question 9 
+If library A dependant on library B, is it best to include library B in library A's header file?
+Or expect the end user to include it in their own program?
+*/
 
 namespace ChatGPTuino {
 
@@ -25,6 +31,8 @@ namespace ChatGPTuino {
 
 #define PORT 443                               // The port you'll connect to on the server - this is standard.
 #define SERVER_RESPONSE_WAIT_TIME (15 * 1000)  // How long to wait for a server response (seconds * 1000)
+
+// #define DEBUG_SERVER_RESPONSE_BREAKING
 
 // Steve Q8 - I wanted to have these constants defined below, but I was getting a "first defined here" error
 // when using them here, so I made each of these private data members, and initialize them in the constructor.
@@ -69,6 +77,12 @@ const char RoleNames[3][10] = { "system",
                                 "user",
                                 "assistant" };
 
+
+enum getResponseCodes { getResponseSuccess,
+                 couldNotConnectToServer,
+                 serverDidNotRespond
+};
+
 class ChatBox {
 
   struct Message {
@@ -106,9 +120,13 @@ public:
   }
 
   char* getLastMessageContent() const;
-  
+
   const char* openAPIendPoint() const {
     return _openAPIendPoint;
+  };
+
+  const char* server() const {
+    return _server;
   };
 
   Roles getLastMessageRole() const;
@@ -132,8 +150,10 @@ public:
 
   // Functions
   DynamicJsonDocument generateJsonRequestBody();
-
-  bool getResponse();
+  getResponseCodes getResponse();
+  void postRequest(DynamicJsonDocument* pJsonRequestBody, WiFiClientSecure* pClient);
+  bool waitForServerResponse(WiFiClientSecure* pClient);
+  bool putResponseInMsgArray(WiFiClientSecure* pClient);
 
 
 private:

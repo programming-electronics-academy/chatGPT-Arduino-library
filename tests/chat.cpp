@@ -159,10 +159,196 @@ DynamicJsonDocument ChatBox::generateJsonRequestBody() {
   return doc;
 }
 
-bool ChatBox::getResponse() {
-  return false;
+getResponseCodes ChatBox::getResponse() {
+
+  // Create a secure wifi client
+  WiFiClientSecure client;
+  client.setCACert(_rootCACertificate);
+
+  // Generate JSON Request body from messages array
+  DynamicJsonDocument jsonRequestBody = generateJsonRequestBody();
+
+  // Connect to OpenAI
+  int conn = client.connect(_server, PORT);
+
+  // If connection is successful, send JSON
+  if (conn == 1) {
+    // Send JSON Request body to OpenAI API endpoint URL
+    postRequest(&jsonRequestBody, &client);
+
+#ifdef DEBUG_SERVER_RESPONSE_BREAKING
+    /* Seeing the headers of the server response can be extremely useful to troubleshooting
+      connection errors.  However, this readout of the server response header breaks 
+      how the message is parsed from the response.  So you'll be able to send and receive one message,
+      but no more.  So make sure you only use this when debugging server response issues. */
+
+    String line = client.readStringUntil('X');
+    Serial.print(line);
+#endif
+
+    /*Steve Question 10
+    The end user may have to wait for the server response, 
+    I want them to be able to get an indication that they are waiting so they can do something
+    else, but I am not sure how to handle this.
+
+    For example, it would be nice if the end user could use
+    
+    while(!getResponse()){
+      //do something
+    }
+
+    But my issue is, getReponse may take a couple seconds to return if it is waiting on the server
+    and I want the user to be able to do something in those seconds.  
+    
+    I guess what I want is for getResponse to be working "in the background"? So it doesn't hold up the rest of the users program.
+    */
+
+    //  Wait for OpenAI response
+    bool responseSuccess = waitForServerResponse(&client);
+
+    // If you receive a response, parse the JSON and copy the response to messages[]
+    if (responseSuccess) {
+
+      bool responseSaved = putResponseInMsgArray(&client);
+
+      //         if (responseSaved) {
+
+      //           (pStateVars->msgCount)++;              // We successfully received and saved a new message
+      //           pStateVars->state = DISPLAY_RESPONSE;  // Now display response
+
+      //         } else {
+      //           // An error occured durring parsing, exit and try again (error message handled in parsing function)
+      //           return;
+      //         }
+
+      // #ifdef DEBUG
+      //         printToConsoleMessageArray();
+      // #endif
+
+    } else {
+      // Server did not responsd to POST request, go through loop and try again.
+      Serial.println("    | Server did not respond. Trying again.");
+      return serverDidNotRespond;
+    }
+
+  } else {
+    // Failed to connect to server, go through loop and try again.
+    Serial.println("    | Could not connect to server. Trying again.");
+    return couldNotConnectToServer;
+  }
+
+  // Disconnect from server after response received, server timeout, or connection failure
+  client.stop();
+
+  return getResponseSuccess;
 }
 
+/* Function:  postRequest
+ * -------------------------
+ * Makes a POST request to OpenAI 
+ *
+ * DynamicJsonDocument * pJSONRequestBody: The JSON Request body to send with the POST
+ * WiFiClientSecure * pClient: The wifi object handling the sending
+ *
+ * returns: void
+ */
+void ChatBox::postRequest(DynamicJsonDocument* pJsonRequestBody, WiFiClientSecure* pClient) {
+
+  Serial.println("    | Connected to OpenAI");
+  // Make request
+  pClient->println("POST https://api.openai.com/v1/chat/completions HTTP/1.1");
+  // Send headers
+  pClient->print("Host: ");
+  pClient->println(_server);
+  pClient->println("Content-Type: application/json");
+  pClient->print("Content-Length: ");
+  pClient->println(measureJson(*pJsonRequestBody));
+  pClient->print("Authorization: Bearer ");
+  pClient->println(_secret_key);
+  pClient->println("Connection: Close");
+  /* The empty println below inserts a stand-alone carriage return and newline (CRLF) 
+      which is part of the HTTP protocol following sending headers and prior to sending the body. */
+  pClient->println();
+  serializeJson(*pJsonRequestBody, *pClient);  // Serialize the JSON doc and append to client object
+  pClient->println();                          // Send the body to the server
+
+  Serial.println("    | JSON sent");
+}
+
+/* Function:  waitForServerResponse
+ * -------------------------
+ * Holds program in loop while waiting for response from server.
+ * Times out after defined interval.
+ *
+ * WiFiClientSecure * pClient: The wifi object handling the response
+ *
+ * returns: bool - 0 for timeout, 1 for success
+ */
+bool ChatBox::waitForServerResponse(WiFiClientSecure* pClient) {
+
+  bool responseSuccess = true;
+  long startWaitTime = millis();  // Measure how long it takes
+
+  while (pClient->available() == 0) {
+    /* If you've been waiting too long, perhaps something went wrong,
+        break out and try again. */
+    if (millis() - startWaitTime > SERVER_RESPONSE_WAIT_TIME) {
+      Serial.println("    | SERVER_RESPONSE_WAIT_TIME exceeded.");
+      return false;
+    }
+  }
+
+  return responseSuccess;
+}
+
+
+/* Function:  putResponseInMsgArray
+ * -------------------------
+ * Applies filter to JSON reponse and saves response to messages array. 
+ *
+ * WiFiClientSecure * pClient: The wifi object handling the response
+ * int numMessages:  Number of messages in the messages array
+ *
+ * returns: bool - 0 for failure to extract JSON, 1 for success
+ */
+bool ChatBox::putResponseInMsgArray(WiFiClientSecure* pClient) {
+
+  pClient->find("\r\n\r\n");  // This search gets us to the body section of the http response
+
+  /* Create a filter for the returning JSON 
+        https://arduinojson.org/news/2020/03/22/version-6-15-0/ */
+  StaticJsonDocument<500> filter;
+  JsonObject filter_choices_0_message = filter["choices"][0].createNestedObject("message");
+  filter_choices_0_message["role"] = true;
+  filter_choices_0_message["content"] = true;
+
+  // Deserialize the JSON
+  //ToDo this values needs based on MakeTokens
+  StaticJsonDocument<2000> jsonResponse;
+  DeserializationError error = deserializeJson(jsonResponse, *pClient, DeserializationOption::Filter(filter));
+
+  // If deserialization fails, exit immediately and try again.
+  if (error) {
+
+    pClient->stop();
+
+    Serial.print("    | deserializeJson() failed->");
+    Serial.println(error.c_str());
+
+    return 0;
+  }
+
+  // putMessage(jsonResponse["choices"][0]["message"]["content"], assistant);
+  // Update messages[] with new message details
+  _messages[_msgCount % _maxMsgs].role = assistant;                                                                                // Assign incoming message role as 'assistant'
+  strncpy(_messages[_msgCount % _maxMsgs].content, jsonResponse["choices"][0]["message"]["content"] | "...", _MAX_MESSAGE_LENGTH);  // Copy content
+  _msgCount++;
+  
+  // Measure the length of the response
+  // responseLength = measureJson(jsonResponse["choices"][0]["message"]["content"]);
+
+  return 1;
+}
 
 
 }  // close namespace
