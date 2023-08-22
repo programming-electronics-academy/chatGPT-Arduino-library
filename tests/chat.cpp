@@ -1,3 +1,4 @@
+#include <cstddef>
 #include "HardwareSerial.h"
 #include <stdlib.h>
 #include <Arduino.h>
@@ -123,7 +124,7 @@ Roles ChatBox::getLastMessageRole() const {
   }
 }
 
-int ChatBox::putMessage(char* msg, Roles msgRole) {
+int ChatBox::putMessage(const char* msg, Roles msgRole) {
   strcpy(_messages[(_msgCount % _maxMsgs)].content, msg);
   _messages[(_msgCount % _maxMsgs)].role = msgRole;
   _msgCount++;
@@ -313,6 +314,7 @@ bool ChatBox::waitForServerResponse(WiFiClientSecure* pClient) {
  */
 bool ChatBox::putResponseInMsgArray(WiFiClientSecure* pClient) {
 
+  Serial.println("    | putResponseInMsgArray");
   pClient->find("\r\n\r\n");  // This search gets us to the body section of the http response
 
   /* Create a filter for the returning JSON 
@@ -323,8 +325,12 @@ bool ChatBox::putResponseInMsgArray(WiFiClientSecure* pClient) {
   filter_choices_0_message["content"] = true;
 
   // Deserialize the JSON
-  //ToDo this values needs based on MakeTokens
-  StaticJsonDocument<2000> jsonResponse;
+  //TODO - I want capacity to be determined by the tokens the end user initilazes with.
+  //But I can't figure out how to make this work.  JSON_OBJECT_SIZE() does not seem to size for what's will be stored in the JSON doc.
+  //https://arduinojson.org/v6/how-to/determine-the-capacity-of-the-jsondocument/#technique-2-compute-the-capacity-with-macros 
+  //const int capacityTest = MAX_TOKENS * CHARS_PER_TOKEN; //-> this did not work either, was getting a stack overflow, i think trying to take up too much space
+  const int capacity = 2000;
+  StaticJsonDocument<capacity> jsonResponse;
   DeserializationError error = deserializeJson(jsonResponse, *pClient, DeserializationOption::Filter(filter));
 
   // If deserialization fails, exit immediately and try again.
@@ -338,11 +344,10 @@ bool ChatBox::putResponseInMsgArray(WiFiClientSecure* pClient) {
     return 0;
   }
 
-  // putMessage(jsonResponse["choices"][0]["message"]["content"], assistant);
-  // Update messages[] with new message details
-  _messages[_msgCount % _maxMsgs].role = assistant;                                                                                // Assign incoming message role as 'assistant'
-  strncpy(_messages[_msgCount % _maxMsgs].content, jsonResponse["choices"][0]["message"]["content"] | "...", _MAX_MESSAGE_LENGTH);  // Copy content
-  _msgCount++;
+  
+  const char* newMsg = jsonResponse["choices"][0]["message"]["content"] | "...";
+  Serial.println(newMsg);
+  putMessage(newMsg, assistant);
   
   // Measure the length of the response
   // responseLength = measureJson(jsonResponse["choices"][0]["message"]["content"]);

@@ -12,6 +12,7 @@ Or expect the end user to include it in their own program?
 namespace ChatGPTuino {
 
 #define MIN_TOKENS 50
+#define MAX_TOKENS 2000 // Used for sizing JSON reponse
 #define MIN_MESSAGES 5
 #define CHARS_PER_TOKEN 6
 #define API_KEY_SIZE 100
@@ -146,7 +147,7 @@ public:
   };
 
   // Setters
-  int putMessage(char* msg, Roles msgRole = user);
+  int putMessage(const char* msg, Roles msgRole = user);
 
   // Functions
   DynamicJsonDocument generateJsonRequestBody();
