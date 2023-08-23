@@ -40,6 +40,7 @@ ChatBox::ChatBox(int maxTokens = MIN_TOKENS, const int maxMsgs = MIN_MESSAGES)
       "R9I4LtD+gdwyah617jzV/OeBHRnDJELqYzmp\n"
       "-----END CERTIFICATE-----\n"
     } {
+
   /* STEVE Q4 ----Maybe I should move this to init()?  
  Maybe I should be be checking that "new" succeeds in it's memory allocation?*/
   _messages = new Message[_maxMsgs];
@@ -124,9 +125,31 @@ Roles ChatBox::getLastMessageRole() const {
   }
 }
 
-int ChatBox::putMessage(const char* msg, Roles msgRole) {
-  strcpy(_messages[(_msgCount % _maxMsgs)].content, msg);
+int ChatBox::getLastMessageLength() const {
+
+  if (_msgCount == 0) {
+    // No message yet, do nothing.
+    Serial.println("No message to get.");
+  } else {
+    return _messages[(_msgCount - 1) % _maxMsgs].length;
+  }
+}
+
+void ChatBox::safe_strncpy(char *dest, size_t destSize, const char *src)
+{
+    size_t srcSize = strlen(src);  // crash here if not nul-terminated
+    if (srcSize > destSize - 1)
+        srcSize = destSize - 1;
+    memmove(dest, src, srcSize);   // memmove is safe if dest and src overlap
+    dest[srcSize] = '\0';
+}
+
+int ChatBox::putMessage(const char* msg, int msgLength, Roles msgRole) {
+  
+  safe_strncpy(_messages[(_msgCount % _maxMsgs)].content, _MAX_MESSAGE_LENGTH, msg);
+  //strcpy(_messages[(_msgCount % _maxMsgs)].content, msg);
   _messages[(_msgCount % _maxMsgs)].role = msgRole;
+  _messages[(_msgCount % _maxMsgs)].length = msgLength;
   _msgCount++;
 
   return _msgCount;
@@ -327,7 +350,7 @@ bool ChatBox::putResponseInMsgArray(WiFiClientSecure* pClient) {
   // Deserialize the JSON
   //TODO - I want capacity to be determined by the tokens the end user initilazes with.
   //But I can't figure out how to make this work.  JSON_OBJECT_SIZE() does not seem to size for what's will be stored in the JSON doc.
-  //https://arduinojson.org/v6/how-to/determine-the-capacity-of-the-jsondocument/#technique-2-compute-the-capacity-with-macros 
+  //https://arduinojson.org/v6/how-to/determine-the-capacity-of-the-jsondocument/#technique-2-compute-the-capacity-with-macros
   //const int capacityTest = MAX_TOKENS * CHARS_PER_TOKEN; //-> this did not work either, was getting a stack overflow, i think trying to take up too much space
   const int capacity = 2000;
   StaticJsonDocument<capacity> jsonResponse;
@@ -344,13 +367,17 @@ bool ChatBox::putResponseInMsgArray(WiFiClientSecure* pClient) {
     return 0;
   }
 
-  
+
   const char* newMsg = jsonResponse["choices"][0]["message"]["content"] | "...";
   Serial.println(newMsg);
-  putMessage(newMsg, assistant);
-  
+  Serial.print("measureJSON ");
+  Serial.print(measureJson(jsonResponse["choices"][0]["message"]["content"]));
+  Serial.print("  | strlng ");
+  Serial.println(strlen(jsonResponse["choices"][0]["message"]["content"]));
+  putMessage(newMsg, measureJson(jsonResponse["choices"][0]["message"]["content"]), assistant);
+
   // Measure the length of the response
-  // responseLength = measureJson(jsonResponse["choices"][0]["message"]["content"]);
+  //_messages[(_msgCount % _maxMsgs)].length = measureJson(jsonResponse["choices"][0]["message"]["content"]);
 
   return 1;
 }

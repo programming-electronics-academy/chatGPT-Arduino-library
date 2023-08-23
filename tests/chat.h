@@ -22,7 +22,7 @@ namespace ChatGPTuino {
 // TODO Consider using the JSON_ARRAY_SIZE and JSON_OBJECT_SIZE macros
 // https://arduinojson.org/v6/how-to/determine-the-capacity-of-the-jsondocument/
 #define JSON_DATA_STRUCTURE_MEMORY_BASE 32
-#define JSON_DATA_STRUCTURE_MEMORY_PER_MSG 48
+#define JSON_DATA_STRUCTURE_MEMORY_PER_MSG 64
 
 #define JSON_KEY_STRING_MEMORY_BASE 29
 #define JSON_VALUE_STRING_MEMORY_PER_MSG 35
@@ -89,6 +89,7 @@ class ChatBox {
   struct Message {
     enum Roles role;
     char* content;
+    int length;
   };
 
 public:
@@ -121,6 +122,10 @@ public:
   }
 
   char* getLastMessageContent() const;
+  
+  int getLastMessageLength() const;
+
+  Roles getLastMessageRole() const;
 
   const char* openAPIendPoint() const {
     return _openAPIendPoint;
@@ -129,8 +134,6 @@ public:
   const char* server() const {
     return _server;
   };
-
-  Roles getLastMessageRole() const;
 
   /* STEVE Q3 - I have always used byte, int, long as datatypes, but I am starting to wonder if ought to use fixed width types uint8_t, uint16_t, etc... */
   // Dev
@@ -147,7 +150,7 @@ public:
   };
 
   // Setters
-  int putMessage(const char* msg, Roles msgRole = user);
+  int putMessage(const char* msg, int msgLength, Roles msgRole = user);
 
   // Functions
   DynamicJsonDocument generateJsonRequestBody();
@@ -155,6 +158,7 @@ public:
   void postRequest(DynamicJsonDocument* pJsonRequestBody, WiFiClientSecure* pClient);
   bool waitForServerResponse(WiFiClientSecure* pClient);
   bool putResponseInMsgArray(WiFiClientSecure* pClient);
+  void safe_strncpy(char *dest, size_t destSize, const char *src);
 
 
 private:

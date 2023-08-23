@@ -6,11 +6,11 @@ void helloChatGPT() {
   chat.init(test_key,model);
 
   char *testMessage = "Hello ChatGPT!";
-  chat.putMessage(testMessage);
+  chat.putMessage(testMessage, strlen(testMessage));
   Serial.println(chat.getLastMessageContent());
 
   char *testMessage_2 = "I really like AI...";
-  chat.putMessage(testMessage_2);
+  chat.putMessage(testMessage_2, strlen(testMessage_2));
   Serial.println(chat.getLastMessageContent());
 
   Serial.println("helloChatGPT--> ENDED");
