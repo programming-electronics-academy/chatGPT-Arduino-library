@@ -374,10 +374,9 @@ bool ChatBox::putResponseInMsgArray(WiFiClientSecure* pClient) {
   Serial.print(measureJson(jsonResponse["choices"][0]["message"]["content"]));
   Serial.print("  | strlng ");
   Serial.println(strlen(jsonResponse["choices"][0]["message"]["content"]));
-  putMessage(newMsg, measureJson(jsonResponse["choices"][0]["message"]["content"]), assistant);
-
-  // Measure the length of the response
-  //_messages[(_msgCount % _maxMsgs)].length = measureJson(jsonResponse["choices"][0]["message"]["content"]);
+  // Q Benoît
+  // Why does measureJson return 2 more than strlen?
+  putMessage(newMsg, measureJson(jsonResponse["choices"][0]["message"]["content"]) - 2, assistant);
 
   return 1;
 }
