@@ -16,7 +16,7 @@ test(ChatBox_itializes_with_valid_values) {
 
   ChatGPTuino::ChatBox chat{ -5, -5 };
   chat.init(test_key, model);
-  long testDocSize = 2976;
+  long testDocSize = 3056; //Based on Arduino JSON 6 assistant
   assertEqual((const char *)model, (const char *)chat.model());
   assertEqual(chat.numMessages(), MIN_MESSAGES);
   assertEqual(chat.maxTokens(), MIN_TOKENS);
@@ -48,12 +48,12 @@ test(putMessage_puts_message_in_next_available_slot) {
   chat.init(test_key, model);
 
   char *testMessage = "testing_1";
-  chat.putMessage(testMessage);
+  chat.putMessage(testMessage, strlen(testMessage));
 
   assertEqual((const char *)testMessage, (const char *)chat.getLastMessageContent());
 
   char *testMessage2 = "testing_2";
-  chat.putMessage(testMessage2);
+  chat.putMessage(testMessage2, strlen(testMessage2));
 
   assertEqual((const char *)testMessage2, (const char *)chat.getLastMessageContent());
 }
@@ -63,7 +63,7 @@ test(putMessage_assigns_default_role_of_message_to_user) {
   chat.init(test_key, model);
 
   char *testMessage = "testing_1";
-  chat.putMessage(testMessage);
+  chat.putMessage(testMessage, strlen(testMessage));
 
   assertEqual(1, chat.getLastMessageRole());
 }
@@ -73,7 +73,7 @@ test(putMessage_assigns_specified_role_to_message) {
   chat.init(test_key, model);
 
   char *testMessage = "testing_1";
-  chat.putMessage(testMessage, ChatGPTuino::Roles::assistant);
+  chat.putMessage(testMessage, strlen(testMessage), ChatGPTuino::Roles::assistant);
 
   assertEqual(ChatGPTuino::Roles::assistant, chat.getLastMessageRole());
 }
@@ -92,7 +92,7 @@ test(generateJsonRequestBody_returns_valid_Json) {
   assertEqual((const char *)chat.getLastMessageContent(), (const char *)testDoc["messages"][0]["content"]);
 
   char *testMessage2 = "JSON body testing2";
-  chat.putMessage(testMessage2, ChatGPTuino::Roles::user);
+  chat.putMessage(testMessage2, strlen(testMessage2), ChatGPTuino::Roles::user);
   testDoc = chat.generateJsonRequestBody();
 
   assertEqual((const char *)chat.getLastMessageContent(), (const char *)testDoc["messages"][1]["content"]);
@@ -103,10 +103,21 @@ test(getResponse_puts_response_in_messages) {
   chat.init(openAI_Private_key, model);
 
   char *testMessage = "Please respond with the only the word TEST";
-  chat.putMessage(testMessage, ChatGPTuino::Roles::user);
+  chat.putMessage(testMessage, strlen(testMessage),ChatGPTuino::Roles::user);
   chat.getResponse();
 
   assertEqual("TEST", (const char *)chat.getLastMessageContent());
+}
+
+test(getResponse_puts_response_length_in_messages) {
+  ChatGPTuino::ChatBox chat{ 10, 4 };
+  chat.init(openAI_Private_key, model);
+
+  char *testMessage = "Please respond with the only the word TEST";
+  chat.putMessage(testMessage,strlen(testMessage), ChatGPTuino::Roles::user);
+  chat.getResponse();
+
+  assertEqual(4, chat.getLastMessageLength());
 }
 
 
