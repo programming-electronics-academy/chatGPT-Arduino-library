@@ -23,8 +23,6 @@ test(ChatBox_itializes_with_valid_values) {
   assertEqual(chat.maxTokens(), MIN_TOKENS);
   assertEqual(CHARS_PER_TOKEN * chat.maxTokens(), chat.MAX_MESSAGE_LENGTH());
   assertEqual(testDocSize, chat.DYNAMIC_JSON_DOC_SIZE());
-  // assertEqual("https://api.openai.com/v1/chat/completions", (const char *)chat.openAPIendPoint());
-  // assertEqual("api.openai.com", (const char *)chat.server());
 }
 
 test(init_allocates_space_for_message_contexts) {

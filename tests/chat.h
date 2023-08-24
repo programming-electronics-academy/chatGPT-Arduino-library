@@ -32,18 +32,14 @@ namespace ChatGPTuino {
 
 #define JSON_MEMORY_SLACK 1000
 
-
 #define PORT 443                               // The port you'll connect to on the server - this is standard.
 #define SERVER_RESPONSE_WAIT_TIME (15 * 1000)  // How long to wait for a server response (seconds * 1000)
-
-
 
 // #define DEBUG_SERVER_RESPONSE_BREAKING
 
 /* Steve Q8 *************************************************************************************
   I wanted to have these constants defined below, but I was getting a "first defined here" error
-  when using them here, so I made each of these private data members, and initialize them in the constructor.
-  Clearly, there is some error in my thinking about where constant data should go...
+  when using them here, so I when with #define macros.  Do you have any opinsions on this?
 */
 #define OPEN_AI_END_POINT "https://api.openai.com/v1/chat/completions"
 #define OPEN_AI_SERVER "api.openai.com"
@@ -70,12 +66,12 @@ namespace ChatGPTuino {
   "-----END CERTIFICATE-----\n"
 
 /*************** Open AI endpoint and connection details ****************/
-// const char* openAPIendPoint = "https://api.openai.com/v1/chat/completions";
-// const char* server = "api.openai.com";
+// const char* OPEN_AI_END_POINT = "https://api.openai.com/v1/chat/completions";
+// const char* OPEN_AI_SERVER = "api.openai.com";
 
 //OpenAI API endpoint root certificate used to ensure response is actually from OpenAPI
 /*
-const char* rootCACertificate =
+const char* ROOT_CA_CERT =
   "-----BEGIN CERTIFICATE-----\n"
   "MIIDdzCCAl+gAwIBAgIEAgAAuTANBgkqhkiG9w0BAQUFADBaMQswCQYDVQQGEwJJ\n"
   "RTESMBAGA1UEChMJQmFsdGltb3JlMRMwEQYDVQQLEwpDeWJlclRydXN0MSIwIAYD\n"
@@ -157,14 +153,6 @@ public:
 
   Roles getLastMessageRole() const;
 
-  // const char* openAPIendPoint() const {
-  //   return _openAPIendPoint;
-  // };
-
-  // const char* server() const {
-  //   return _server;
-  // };
-
 /* Steve Q3 *************************************************************************************
   I have always used byte, int, long as datatypes, 
   but I am starting to wonder if ought to use fixed width types uint8_t, uint16_t, etc...
@@ -203,10 +191,6 @@ private:
   char* _secret_key;
   char* _model;
   Message* _messages;
-
-  // const char* _openAIendPoint;
-  // const char* _server;
-  // const char* _rootCACertificate;
 };
 
 
