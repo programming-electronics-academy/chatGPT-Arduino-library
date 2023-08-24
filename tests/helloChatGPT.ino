@@ -2,8 +2,8 @@ void helloChatGPT() {
 
   Serial.println("helloChatGPT--> STARTED");
 
-  ChatGPTuino::ChatBox chat{ 50, 20 };
-  chat.init(test_key,model);
+  ChatBox chat{ 50, 20 };
+  chat.init(openAI_Private_key,model);
 
   char *testMessage = "Hello ChatGPT!";
   chat.putMessage(testMessage, strlen(testMessage));
