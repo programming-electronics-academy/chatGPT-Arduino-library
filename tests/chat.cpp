@@ -39,6 +39,8 @@ ChatBox::~ChatBox() {
 
 bool ChatBox::init(const char* key, const char* model) {
 
+  bool initSuccess = true;
+
   /* Steve Q2 *************************************************************************************
   I am trying to check for a NULL pointer returned by malloc, I think these expressions do the job
 */
@@ -50,7 +52,7 @@ bool ChatBox::init(const char* key, const char* model) {
     strcpy(_secret_key, key);
   } else {
     Serial.println("keyAlloc failed");
-    return false;
+    initSuccess = false;
   }
 
   // Allocate space for model and assign
@@ -61,7 +63,7 @@ bool ChatBox::init(const char* key, const char* model) {
     strcpy(_model, model);
   } else {
     Serial.println("modelAlloc failed");
-    return false;
+    initSuccess = false;
   }
 
   // Allocate space for message content
@@ -74,10 +76,11 @@ bool ChatBox::init(const char* key, const char* model) {
       _messages[i].content = contentAlloc + i * _MAX_MESSAGE_LENGTH * sizeof(char);
     }
 
-    return true;
   } else {
-    return false;
+    initSuccess = false;
   }
+
+  return initSuccess;
 }
 
 char* ChatBox::getLastMessageContent() const {
@@ -85,7 +88,7 @@ char* ChatBox::getLastMessageContent() const {
   if (_msgCount == 0) {
     // No message yet, do nothing.
     Serial.println("No message to get.");
-    return nullptr;  // I think this is what I want to return in the case there are no messages
+    return nullptr;  // Steve Q99 - I think this is what I want to return in the case there are no messages
   } else {
     return _messages[(_msgCount - 1) % _maxMsgs].content;
   }
@@ -110,6 +113,7 @@ int ChatBox::getLastMessageLength() const {
   if (_msgCount == 0) {
     // No message yet, do nothing.
     Serial.println("No message to get.");
+    return -1;
   } else {
     return _messages[(_msgCount - 1) % _maxMsgs].length;
   }
@@ -126,7 +130,6 @@ void ChatBox::safe_strncpy(char* dest, size_t destSize, const char* src) {
 int ChatBox::putMessage(const char* msg, int msgLength, Roles msgRole) {
 
   safe_strncpy(_messages[(_msgCount % _maxMsgs)].content, _MAX_MESSAGE_LENGTH, msg);
-  //strcpy(_messages[(_msgCount % _maxMsgs)].content, msg);
   _messages[(_msgCount % _maxMsgs)].role = msgRole;
   _messages[(_msgCount % _maxMsgs)].length = msgLength;
   _msgCount++;
@@ -166,7 +169,6 @@ getResponseCodes ChatBox::getResponse() {
 
   // Create a secure wifi client
   WiFiClientSecure client;
-  // client.setCACert(_rootCACertificate);
   client.setCACert(ROOT_CA_CERT);
 
   // Generate JSON Request body from messages array
@@ -215,20 +217,6 @@ getResponseCodes ChatBox::getResponse() {
 
       bool responseSaved = putResponseInMsgArray(&client);
 
-      //         if (responseSaved) {
-
-      //           (pStateVars->msgCount)++;              // We successfully received and saved a new message
-      //           pStateVars->state = DISPLAY_RESPONSE;  // Now display response
-
-      //         } else {
-      //           // An error occured durring parsing, exit and try again (error message handled in parsing function)
-      //           return;
-      //         }
-
-      // #ifdef DEBUG
-      //         printToConsoleMessageArray();
-      // #endif
-
     } else {
       // Server did not responsd to POST request, go through loop and try again.
       Serial.println("    | Server did not respond. Trying again.");
@@ -260,7 +248,6 @@ void ChatBox::postRequest(DynamicJsonDocument* pJsonRequestBody, WiFiClientSecur
 
   Serial.println("    | Making POST Request to OpenAI");
   // Make request
-  // pClient->println("POST https://api.openai.com/v1/chat/completions HTTP/1.1");
   pClient->print("POST ");
   pClient->print(OPEN_AI_END_POINT);
   pClient->println(" HTTP/1.1");
@@ -357,7 +344,7 @@ bool ChatBox::putResponseInMsgArray(WiFiClientSecure* pClient) {
   Serial.print(measureJson(jsonResponse["choices"][0]["message"]["content"]));
   Serial.print("  | strlng ");
   Serial.println(strlen(jsonResponse["choices"][0]["message"]["content"]));
-  // Q Benoît
+  // Benoît Q1
   // Why does measureJson return 2 more than strlen?
   putMessage(newMsg, measureJson(jsonResponse["choices"][0]["message"]["content"]) - 2, assistant);
 

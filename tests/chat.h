@@ -37,39 +37,54 @@ namespace ChatGPTuino {
 
 // #define DEBUG_SERVER_RESPONSE_BREAKING
 
-/* Steve Q8 *************************************************************************************
-  I wanted to have these constants defined below, but I was getting a "first defined here" error
-  when using them here, so I when with #define macros.  Do you have any opinsions on this?
-*/
-#define OPEN_AI_END_POINT "https://api.openai.com/v1/chat/completions"
-#define OPEN_AI_SERVER "api.openai.com"
-#define ROOT_CA_CERT "-----BEGIN CERTIFICATE-----\n"\
-  "MIIDdzCCAl+gAwIBAgIEAgAAuTANBgkqhkiG9w0BAQUFADBaMQswCQYDVQQGEwJJ\n"\
-  "RTESMBAGA1UEChMJQmFsdGltb3JlMRMwEQYDVQQLEwpDeWJlclRydXN0MSIwIAYD\n"\
-  "VQQDExlCYWx0aW1vcmUgQ3liZXJUcnVzdCBSb290MB4XDTAwMDUxMjE4NDYwMFoX\n"\
-  "DTI1MDUxMjIzNTkwMFowWjELMAkGA1UEBhMCSUUxEjAQBgNVBAoTCUJhbHRpbW9y\n"\
-  "ZTETMBEGA1UECxMKQ3liZXJUcnVzdDEiMCAGA1UEAxMZQmFsdGltb3JlIEN5YmVy\n"\
-  "VHJ1c3QgUm9vdDCCASIwDQYJKoZIhvcNAQEBBQADggEPADCCAQoCggEBAKMEuyKr\n"\
-  "mD1X6CZymrV51Cni4eiVgLGw41uOKymaZN+hXe2wCQVt2yguzmKiYv60iNoS6zjr\n"\
-  "IZ3AQSsBUnuId9Mcj8e6uYi1agnnc+gRQKfRzMpijS3ljwumUNKoUMMo6vWrJYeK\n"\
-  "mpYcqWe4PwzV9/lSEy/CG9VwcPCPwBLKBsua4dnKM3p31vjsufFoREJIE9LAwqSu\n"\
-  "XmD+tqYF/LTdB1kC1FkYmGP1pWPgkAx9XbIGevOF6uvUA65ehD5f/xXtabz5OTZy\n"\
-  "dc93Uk3zyZAsuT3lySNTPx8kmCFcB5kpvcY67Oduhjprl3RjM71oGDHweI12v/ye\n"\
-  "jl0qhqdNkNwnGjkCAwEAAaNFMEMwHQYDVR0OBBYEFOWdWTCCR1jMrPoIVDaGezq1\n"\
-  "BE3wMBIGA1UdEwEB/wQIMAYBAf8CAQMwDgYDVR0PAQH/BAQDAgEGMA0GCSqGSIb3\n"\
-  "DQEBBQUAA4IBAQCFDF2O5G9RaEIFoN27TyclhAO992T9Ldcw46QQF+vaKSm2eT92\n"\
-  "9hkTI7gQCvlYpNRhcL0EYWoSihfVCr3FvDB81ukMJY2GQE/szKN+OMY3EU/t3Wgx\n"\
-  "jkzSswF07r51XgdIGn9w/xZchMB5hbgF/X++ZRGjD8ACtPhSNzkE1akxehi/oCr0\n"\
-  "Epn3o0WC4zxe9Z2etciefC7IpJ5OCBRLbf1wbWsaY71k5h+3zvDyny67G7fyUIhz\n"\
-  "ksLi4xaNmjICq44Y3ekQEe5+NauQrz4wlHrQMz2nZQ/1/I6eYs9HRCwBXbsdtTLS\n"\
-  "R9I4LtD+gdwyah617jzV/OeBHRnDJELqYzmp\n"\
-  "-----END CERTIFICATE-----\n"
 
 /*************** Open AI endpoint and connection details ****************/
-// const char* OPEN_AI_END_POINT = "https://api.openai.com/v1/chat/completions";
+/* Steve Q8 *************************************************************************************
+  I wanted to have these constants defined below, but I am getting a "first defined here....multiple definition of"  error:
+  /Users/michaelcheich/Library/Arduino15/packages/esp32/tools/xtensa-esp32-elf-gcc/esp-2021r2-patch5-8.4.0/bin/..
+  /lib/gcc/xtensa-esp32-elf/8.4.0/../../../../xtensa-esp32-elf/bin/ld: 
+  /private/var/folders/8b/4_8vt9nx4_s55hvgnj8c_d1w0000gn/
+  T/arduino/sketches/93275D481CA90387E1BD008F29A2471C/sketch/tests.ino.cpp.o:
+  (.data._ZN11ChatGPTuino17OPEN_AI_END_POINTE+0x0): 
+  
+  multiple definition of `ChatGPTuino::OPEN_AI_END_POINT'; 
+  /private/var/folders/8b/4_8vt9nx4_s55hvgnj8c_d1w0000gn/T/arduino/sketches/93275D481CA90387E1BD008F29A2471C/sketch/chat.cpp.o:
+  (.data._ZN11ChatGPTuino17OPEN_AI_END_POINTE+0x0): first defined here
+  collect2: error: ld returned 1 exit status
+
+  exit status 1
+
+  when using them here, so I when with #define macros.  Do you have any thoughts on this?
+*/
+// #define OPEN_AI_END_POINT "https://api.openai.com/v1/chat/completions"
+inline const char* OPEN_AI_END_POINT = "https://api.openai.com/v1/chat/completions";
+
+#define OPEN_AI_SERVER "api.openai.com"
 // const char* OPEN_AI_SERVER = "api.openai.com";
 
 //OpenAI API endpoint root certificate used to ensure response is actually from OpenAPI
+// TODO - Verify that the certificate matters!  Have a check that verifys the connection is secure.
+#define ROOT_CA_CERT "-----BEGIN CERTIFICATE-----\n" \
+                     "MIIDdzCCAl+gAwIBAgIEAgAAuTANBgkqhkiG9w0BAQUFADBaMQswCQYDVQQGEwJJ\n" \
+                     "RTESMBAGA1UEChMJQmFsdGltb3JlMRMwEQYDVQQLEwpDeWJlclRydXN0MSIwIAYD\n" \
+                     "VQQDExlCYWx0aW1vcmUgQ3liZXJUcnVzdCBSb290MB4XDTAwMDUxMjE4NDYwMFoX\n" \
+                     "DTI1MDUxMjIzNTkwMFowWjELMAkGA1UEBhMCSUUxEjAQBgNVBAoTCUJhbHRpbW9y\n" \
+                     "ZTETMBEGA1UECxMKQ3liZXJUcnVzdDEiMCAGA1UEAxMZQmFsdGltb3JlIEN5YmVy\n" \
+                     "VHJ1c3QgUm9vdDCCASIwDQYJKoZIhvcNAQEBBQADggEPADCCAQoCggEBAKMEuyKr\n" \
+                     "mD1X6CZymrV51Cni4eiVgLGw41uOKymaZN+hXe2wCQVt2yguzmKiYv60iNoS6zjr\n" \
+                     "IZ3AQSsBUnuId9Mcj8e6uYi1agnnc+gRQKfRzMpijS3ljwumUNKoUMMo6vWrJYeK\n" \
+                     "mpYcqWe4PwzV9/lSEy/CG9VwcPCPwBLKBsua4dnKM3p31vjsufFoREJIE9LAwqSu\n" \
+                     "XmD+tqYF/LTdB1kC1FkYmGP1pWPgkAx9XbIGevOF6uvUA65ehD5f/xXtabz5OTZy\n" \
+                     "dc93Uk3zyZAsuT3lySNTPx8kmCFcB5kpvcY67Oduhjprl3RjM71oGDHweI12v/ye\n" \
+                     "jl0qhqdNkNwnGjkCAwEAAaNFMEMwHQYDVR0OBBYEFOWdWTCCR1jMrPoIVDaGezq1\n" \
+                     "BE3wMBIGA1UdEwEB/wQIMAYBAf8CAQMwDgYDVR0PAQH/BAQDAgEGMA0GCSqGSIb3\n" \
+                     "DQEBBQUAA4IBAQCFDF2O5G9RaEIFoN27TyclhAO992T9Ldcw46QQF+vaKSm2eT92\n" \
+                     "9hkTI7gQCvlYpNRhcL0EYWoSihfVCr3FvDB81ukMJY2GQE/szKN+OMY3EU/t3Wgx\n" \
+                     "jkzSswF07r51XgdIGn9w/xZchMB5hbgF/X++ZRGjD8ACtPhSNzkE1akxehi/oCr0\n" \
+                     "Epn3o0WC4zxe9Z2etciefC7IpJ5OCBRLbf1wbWsaY71k5h+3zvDyny67G7fyUIhz\n" \
+                     "ksLi4xaNmjICq44Y3ekQEe5+NauQrz4wlHrQMz2nZQ/1/I6eYs9HRCwBXbsdtTLS\n" \
+                     "R9I4LtD+gdwyah617jzV/OeBHRnDJELqYzmp\n" \
+                     "-----END CERTIFICATE-----\n"
 /*
 const char* ROOT_CA_CERT =
   "-----BEGIN CERTIFICATE-----\n"
@@ -153,7 +168,7 @@ public:
 
   Roles getLastMessageRole() const;
 
-/* Steve Q3 *************************************************************************************
+  /* Steve Q3 *************************************************************************************
   I have always used byte, int, long as datatypes, 
   but I am starting to wonder if ought to use fixed width types uint8_t, uint16_t, etc...
 */
