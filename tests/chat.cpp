@@ -14,42 +14,20 @@ ChatBox::ChatBox(int maxTokens = MIN_TOKENS, const int maxMsgs = MIN_MESSAGES)
     _MAX_MESSAGE_LENGTH{ _maxTokens * CHARS_PER_TOKEN },
     _DYNAMIC_JSON_DOC_SIZE{
       (JSON_DATA_STRUCTURE_MEMORY_BASE + (_maxMsgs * JSON_DATA_STRUCTURE_MEMORY_PER_MSG)) + (JSON_KEY_STRING_MEMORY_BASE + ((_MAX_MESSAGE_LENGTH + JSON_VALUE_STRING_MEMORY_PER_MSG) * _maxMsgs)) + JSON_MEMORY_SLACK
-    },
-    _openAPIendPoint{ "https://api.openai.com/v1/chat/completions" },
-    _server{ "api.openai.com" },
-    _rootCACertificate{
-      "-----BEGIN CERTIFICATE-----\n"
-      "MIIDdzCCAl+gAwIBAgIEAgAAuTANBgkqhkiG9w0BAQUFADBaMQswCQYDVQQGEwJJ\n"
-      "RTESMBAGA1UEChMJQmFsdGltb3JlMRMwEQYDVQQLEwpDeWJlclRydXN0MSIwIAYD\n"
-      "VQQDExlCYWx0aW1vcmUgQ3liZXJUcnVzdCBSb290MB4XDTAwMDUxMjE4NDYwMFoX\n"
-      "DTI1MDUxMjIzNTkwMFowWjELMAkGA1UEBhMCSUUxEjAQBgNVBAoTCUJhbHRpbW9y\n"
-      "ZTETMBEGA1UECxMKQ3liZXJUcnVzdDEiMCAGA1UEAxMZQmFsdGltb3JlIEN5YmVy\n"
-      "VHJ1c3QgUm9vdDCCASIwDQYJKoZIhvcNAQEBBQADggEPADCCAQoCggEBAKMEuyKr\n"
-      "mD1X6CZymrV51Cni4eiVgLGw41uOKymaZN+hXe2wCQVt2yguzmKiYv60iNoS6zjr\n"
-      "IZ3AQSsBUnuId9Mcj8e6uYi1agnnc+gRQKfRzMpijS3ljwumUNKoUMMo6vWrJYeK\n"
-      "mpYcqWe4PwzV9/lSEy/CG9VwcPCPwBLKBsua4dnKM3p31vjsufFoREJIE9LAwqSu\n"
-      "XmD+tqYF/LTdB1kC1FkYmGP1pWPgkAx9XbIGevOF6uvUA65ehD5f/xXtabz5OTZy\n"
-      "dc93Uk3zyZAsuT3lySNTPx8kmCFcB5kpvcY67Oduhjprl3RjM71oGDHweI12v/ye\n"
-      "jl0qhqdNkNwnGjkCAwEAAaNFMEMwHQYDVR0OBBYEFOWdWTCCR1jMrPoIVDaGezq1\n"
-      "BE3wMBIGA1UdEwEB/wQIMAYBAf8CAQMwDgYDVR0PAQH/BAQDAgEGMA0GCSqGSIb3\n"
-      "DQEBBQUAA4IBAQCFDF2O5G9RaEIFoN27TyclhAO992T9Ldcw46QQF+vaKSm2eT92\n"
-      "9hkTI7gQCvlYpNRhcL0EYWoSihfVCr3FvDB81ukMJY2GQE/szKN+OMY3EU/t3Wgx\n"
-      "jkzSswF07r51XgdIGn9w/xZchMB5hbgF/X++ZRGjD8ACtPhSNzkE1akxehi/oCr0\n"
-      "Epn3o0WC4zxe9Z2etciefC7IpJ5OCBRLbf1wbWsaY71k5h+3zvDyny67G7fyUIhz\n"
-      "ksLi4xaNmjICq44Y3ekQEe5+NauQrz4wlHrQMz2nZQ/1/I6eYs9HRCwBXbsdtTLS\n"
-      "R9I4LtD+gdwyah617jzV/OeBHRnDJELqYzmp\n"
-      "-----END CERTIFICATE-----\n"
     } {
-
-  /* STEVE Q4 ----Maybe I should move this to init()?  
- Maybe I should be be checking that "new" succeeds in it's memory allocation?*/
+  /* Steve Q4 *************************************************************************************
+  Maybe I should move this to init()?  
+  Maybe I should be be checking that "new" succeeds in it's memory allocation?
+*/
   _messages = new Message[_maxMsgs];
 };
 
 // Destructor
 ChatBox::~ChatBox() {
 
-  /*STEVE Q1 - I *think* I am freeing all the memory here that had been allocated in init() */
+  /* Steve Q1 *************************************************************************************
+  I *think* I am freeing all the memory here that had been allocated in init()
+*/
   // Free message content strings
   free(_messages[0].content);  // This is the pointer returned from init()
   free(_secret_key);
@@ -61,6 +39,11 @@ ChatBox::~ChatBox() {
 
 bool ChatBox::init(const char* key, const char* model) {
 
+  bool initSuccess = true;
+
+  /* Steve Q2 *************************************************************************************
+  I am trying to check for a NULL pointer returned by malloc, I think these expressions do the job
+*/
   // Allocate space for API key and assign
   char* keyAlloc = (char*)malloc(API_KEY_SIZE * sizeof(char));
 
@@ -69,7 +52,7 @@ bool ChatBox::init(const char* key, const char* model) {
     strcpy(_secret_key, key);
   } else {
     Serial.println("keyAlloc failed");
-    return false;
+    initSuccess = false;
   }
 
   // Allocate space for model and assign
@@ -80,13 +63,12 @@ bool ChatBox::init(const char* key, const char* model) {
     strcpy(_model, model);
   } else {
     Serial.println("modelAlloc failed");
-    return false;
+    initSuccess = false;
   }
 
   // Allocate space for message content
   char* contentAlloc = (char*)malloc(_maxMsgs * _MAX_MESSAGE_LENGTH * sizeof(char));
 
-  /*STEVE Q2 - I am trying to check for a NULL pointer returned by malloc, I think this expression does the job */
   // Assign segments of memory to message content strings
   if (contentAlloc) {
 
@@ -94,10 +76,11 @@ bool ChatBox::init(const char* key, const char* model) {
       _messages[i].content = contentAlloc + i * _MAX_MESSAGE_LENGTH * sizeof(char);
     }
 
-    return true;
   } else {
-    return false;
+    initSuccess = false;
   }
+
+  return initSuccess;
 }
 
 char* ChatBox::getLastMessageContent() const {
@@ -105,15 +88,15 @@ char* ChatBox::getLastMessageContent() const {
   if (_msgCount == 0) {
     // No message yet, do nothing.
     Serial.println("No message to get.");
-    return nullptr;  // I think this is what I want to return in the case there are no messages
+    return nullptr;  // Steve Q99 - I think this is what I want to return in the case there are no messages
   } else {
     return _messages[(_msgCount - 1) % _maxMsgs].content;
   }
 }
 
-/* STEVE Q6 
-I have this function that returns a role, but only if a message exists.  If no message exist, it returns nothing...
-Is there something I can return that makes sense, like "null" role?
+/* Steve Q6 *************************************************************************************
+  I have this function that returns a role, but only if a message exists.  If no message exist, it returns nothing...
+  Is there something I can return that makes sense, like "null" role?
 */
 Roles ChatBox::getLastMessageRole() const {
 
@@ -130,24 +113,23 @@ int ChatBox::getLastMessageLength() const {
   if (_msgCount == 0) {
     // No message yet, do nothing.
     Serial.println("No message to get.");
+    return -1;
   } else {
     return _messages[(_msgCount - 1) % _maxMsgs].length;
   }
 }
 
-void ChatBox::safe_strncpy(char *dest, size_t destSize, const char *src)
-{
-    size_t srcSize = strlen(src);  // crash here if not nul-terminated
-    if (srcSize > destSize - 1)
-        srcSize = destSize - 1;
-    memmove(dest, src, srcSize);   // memmove is safe if dest and src overlap
-    dest[srcSize] = '\0';
+void ChatBox::safe_strncpy(char* dest, size_t destSize, const char* src) {
+  size_t srcSize = strlen(src);  // crash here if not nul-terminated
+  if (srcSize > destSize - 1)
+    srcSize = destSize - 1;
+  memmove(dest, src, srcSize);  // memmove is safe if dest and src overlap
+  dest[srcSize] = '\0';
 }
 
 int ChatBox::putMessage(const char* msg, int msgLength, Roles msgRole) {
-  
+
   safe_strncpy(_messages[(_msgCount % _maxMsgs)].content, _MAX_MESSAGE_LENGTH, msg);
-  //strcpy(_messages[(_msgCount % _maxMsgs)].content, msg);
   _messages[(_msgCount % _maxMsgs)].role = msgRole;
   _messages[(_msgCount % _maxMsgs)].length = msgLength;
   _msgCount++;
@@ -187,13 +169,13 @@ getResponseCodes ChatBox::getResponse() {
 
   // Create a secure wifi client
   WiFiClientSecure client;
-  client.setCACert(_rootCACertificate);
+  client.setCACert(ROOT_CA_CERT);
 
   // Generate JSON Request body from messages array
   DynamicJsonDocument jsonRequestBody = generateJsonRequestBody();
 
   // Connect to OpenAI
-  int conn = client.connect(_server, PORT);
+  int conn = client.connect(OPEN_AI_SERVER, PORT);
 
   // If connection is successful, send JSON
   if (conn == 1) {
@@ -210,21 +192,21 @@ getResponseCodes ChatBox::getResponse() {
     Serial.print(line);
 #endif
 
-    /*Steve Question 10
-    The end user may have to wait for the server response, 
-    I want them to be able to get an indication that they are waiting so they can do something
-    else, but I am not sure how to handle this.
+    /* Steve Q10 *************************************************************************************
+      The end user may have to wait for the server response, 
+      I want them to be able to get an indication that they are waiting so they can do something
+      else, but I am not sure how to handle this.
 
-    For example, it would be nice if the end user could use
-    
-    while(!getResponse()){
-      //do something
-    }
+      For example, it would be nice if the end user could use
+      
+      while(!getResponse()){
+        //do something
+      }
 
-    But my issue is, getReponse may take a couple seconds to return if it is waiting on the server
-    and I want the user to be able to do something in those seconds.  
-    
-    I guess what I want is for getResponse to be working "in the background"? So it doesn't hold up the rest of the users program.
+      But my issue is, getReponse may take a couple seconds to return if it is waiting on the server
+      and I want the user to be able to do something in those seconds.  
+      
+      I guess what I want is for getResponse to be working "in the background"? So it doesn't hold up the rest of the users program.
     */
 
     //  Wait for OpenAI response
@@ -234,20 +216,6 @@ getResponseCodes ChatBox::getResponse() {
     if (responseSuccess) {
 
       bool responseSaved = putResponseInMsgArray(&client);
-
-      //         if (responseSaved) {
-
-      //           (pStateVars->msgCount)++;              // We successfully received and saved a new message
-      //           pStateVars->state = DISPLAY_RESPONSE;  // Now display response
-
-      //         } else {
-      //           // An error occured durring parsing, exit and try again (error message handled in parsing function)
-      //           return;
-      //         }
-
-      // #ifdef DEBUG
-      //         printToConsoleMessageArray();
-      // #endif
 
     } else {
       // Server did not responsd to POST request, go through loop and try again.
@@ -278,12 +246,14 @@ getResponseCodes ChatBox::getResponse() {
  */
 void ChatBox::postRequest(DynamicJsonDocument* pJsonRequestBody, WiFiClientSecure* pClient) {
 
-  Serial.println("    | Connected to OpenAI");
+  Serial.println("    | Making POST Request to OpenAI");
   // Make request
-  pClient->println("POST https://api.openai.com/v1/chat/completions HTTP/1.1");
+  pClient->print("POST ");
+  pClient->print(OPEN_AI_END_POINT);
+  pClient->println(" HTTP/1.1");
   // Send headers
   pClient->print("Host: ");
-  pClient->println(_server);
+  pClient->println(OPEN_AI_SERVER);
   pClient->println("Content-Type: application/json");
   pClient->print("Content-Length: ");
   pClient->println(measureJson(*pJsonRequestBody));
@@ -374,7 +344,7 @@ bool ChatBox::putResponseInMsgArray(WiFiClientSecure* pClient) {
   Serial.print(measureJson(jsonResponse["choices"][0]["message"]["content"]));
   Serial.print("  | strlng ");
   Serial.println(strlen(jsonResponse["choices"][0]["message"]["content"]));
-  // Q Benoît
+  // Benoît Q1
   // Why does measureJson return 2 more than strlen?
   putMessage(newMsg, measureJson(jsonResponse["choices"][0]["message"]["content"]) - 2, assistant);
 

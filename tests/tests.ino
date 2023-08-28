@@ -3,6 +3,7 @@
 #include "secrets.h"  // Network name, password, and private API key
 #include <WiFi.h>     // ESP32
 
+using namespace ChatGPTuino;
 
 #define TESTING_ON 1
 
@@ -14,7 +15,7 @@ const char *model = "gpt-3.5-turbo";
 #if TESTING_ON
 test(ChatBox_itializes_with_valid_values) {
 
-  ChatGPTuino::ChatBox chat{ -5, -5 };
+  ChatBox chat{ -5, -5 };
   chat.init(test_key, model);
   long testDocSize = 3056; //Based on Arduino JSON 6 assistant
   assertEqual((const char *)model, (const char *)chat.model());
@@ -22,8 +23,6 @@ test(ChatBox_itializes_with_valid_values) {
   assertEqual(chat.maxTokens(), MIN_TOKENS);
   assertEqual(CHARS_PER_TOKEN * chat.maxTokens(), chat.MAX_MESSAGE_LENGTH());
   assertEqual(testDocSize, chat.DYNAMIC_JSON_DOC_SIZE());
-  assertEqual("https://api.openai.com/v1/chat/completions", (const char *)chat.openAPIendPoint());
-  assertEqual("api.openai.com", (const char *)chat.server());
 }
 
 test(init_allocates_space_for_message_contexts) {
