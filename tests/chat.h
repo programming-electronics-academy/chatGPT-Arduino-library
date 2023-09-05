@@ -18,8 +18,8 @@ namespace ChatGPTuino {
 #define MAX_TOKENS 2000  // Used for sizing JSON reponse
 #define MIN_MESSAGES 5
 #define CHARS_PER_TOKEN 6
-#define API_KEY_SIZE 100
-#define MODEL_NAME_SIZE 50
+// #define API_KEY_SIZE 100
+// #define MODEL_NAME_SIZE 50
 
 // These constants are used for calculating the size of Dynamic JSON Array
 // TODO Consider using the JSON_ARRAY_SIZE and JSON_OBJECT_SIZE macros

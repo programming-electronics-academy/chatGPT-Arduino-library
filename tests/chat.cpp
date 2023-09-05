@@ -1,3 +1,4 @@
+#include <cstring>
 #include <cstddef>
 #include "HardwareSerial.h"
 #include <stdlib.h>
@@ -15,25 +16,17 @@ ChatBox::ChatBox(int maxTokens = MIN_TOKENS, const int maxMsgs = MIN_MESSAGES)
     _DYNAMIC_JSON_DOC_SIZE{
       (JSON_DATA_STRUCTURE_MEMORY_BASE + (_maxMsgs * JSON_DATA_STRUCTURE_MEMORY_PER_MSG)) + (JSON_KEY_STRING_MEMORY_BASE + ((_MAX_MESSAGE_LENGTH + JSON_VALUE_STRING_MEMORY_PER_MSG) * _maxMsgs)) + JSON_MEMORY_SLACK
     } {
-  /* Steve Q4 *************************************************************************************
-  Maybe I should move this to init()?  
-  Maybe I should be be checking that "new" succeeds in it's memory allocation?
-*/
-  _messages = new Message[_maxMsgs];
-};
+
+    };
 
 // Destructor
 ChatBox::~ChatBox() {
 
-  /* Steve Q1 *************************************************************************************
-  I *think* I am freeing all the memory here that had been allocated in init()
-*/
-  // Free message content strings
-  free(_messages[0].content);  // This is the pointer returned from init()
+  free(_messages[0].content);  // Free message content strings
   free(_secret_key);
+  free(_model);
 
-  // Delete message structs
-  delete[] _messages;
+  delete[] _messages;  // Delete message structs
 };
 
 
@@ -41,11 +34,8 @@ bool ChatBox::init(const char* key, const char* model) {
 
   bool initSuccess = true;
 
-  /* Steve Q2 *************************************************************************************
-  I am trying to check for a NULL pointer returned by malloc, I think these expressions do the job
-*/
   // Allocate space for API key and assign
-  char* keyAlloc = (char*)malloc(API_KEY_SIZE * sizeof(char));
+  char* keyAlloc = (char*)malloc((strlen(key) + 1) * sizeof(char));
 
   if (keyAlloc) {
     _secret_key = keyAlloc;
@@ -56,13 +46,23 @@ bool ChatBox::init(const char* key, const char* model) {
   }
 
   // Allocate space for model and assign
-  char* modelAlloc = (char*)malloc(MODEL_NAME_SIZE * sizeof(char));
+  char* modelAlloc = (char*)malloc((strlen(model) + 1) * sizeof(char));
 
   if (modelAlloc) {
     _model = modelAlloc;
     strcpy(_model, model);
   } else {
     Serial.println("modelAlloc failed");
+    initSuccess = false;
+  }
+
+  //Allocate space for message structs
+  Message* messagesAlloc = new Message[_maxMsgs];
+
+  if (messagesAlloc) {
+    _messages = messagesAlloc;
+  } else {
+    Serial.println("messageAlloc failed");
     initSuccess = false;
   }
 
@@ -77,6 +77,7 @@ bool ChatBox::init(const char* key, const char* model) {
     }
 
   } else {
+    Serial.println("contentAlloc failed");
     initSuccess = false;
   }
 
