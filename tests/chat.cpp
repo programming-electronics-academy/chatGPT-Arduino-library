@@ -1,3 +1,4 @@
+#include <sys/_stdint.h>
 #include <cstring>
 #include <cstddef>
 #include "HardwareSerial.h"
@@ -8,16 +9,14 @@
 namespace ChatGPTuino {
 
 // Constructor
-ChatBox::ChatBox(int maxTokens = MIN_TOKENS, const int maxMsgs = MIN_MESSAGES)
-  : _maxTokens{ maxTokens >= 0 ? maxTokens : MIN_TOKENS },
-    _maxMsgs{ maxMsgs >= 0 ? maxMsgs : MIN_MESSAGES },
+ChatBox::ChatBox(uint16_t maxTokens = MIN_TOKENS, const int maxMsgs = MIN_MESSAGES)
+  : _maxTokens{ maxTokens > MIN_TOKENS ? maxTokens : MIN_TOKENS },
+    _maxMsgs{ maxMsgs > MIN_MESSAGES ? maxMsgs : MIN_MESSAGES },
     _msgCount{ 0 },
     _MAX_MESSAGE_LENGTH{ _maxTokens * CHARS_PER_TOKEN },
     _DYNAMIC_JSON_DOC_SIZE{
       (JSON_DATA_STRUCTURE_MEMORY_BASE + (_maxMsgs * JSON_DATA_STRUCTURE_MEMORY_PER_MSG)) + (JSON_KEY_STRING_MEMORY_BASE + ((_MAX_MESSAGE_LENGTH + JSON_VALUE_STRING_MEMORY_PER_MSG) * _maxMsgs)) + JSON_MEMORY_SLACK
-    } {
-
-    };
+    } {};
 
 // Destructor
 ChatBox::~ChatBox() {

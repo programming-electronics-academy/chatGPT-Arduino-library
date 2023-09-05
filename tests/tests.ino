@@ -15,12 +15,12 @@ const char *model = "gpt-3.5-turbo";
 #if TESTING_ON
 test(ChatBox_itializes_with_valid_values) {
 
-  ChatBox chat{ -5, -5 };
+  ChatBox chat{ 0, 0 };
   chat.init(test_key, model);
   long testDocSize = 3056; //Based on Arduino JSON 6 assistant
   assertEqual((const char *)model, (const char *)chat.model());
-  assertEqual(chat.numMessages(), MIN_MESSAGES);
   assertEqual(chat.maxTokens(), MIN_TOKENS);
+  assertEqual(chat.numMessages(), MIN_MESSAGES);
   assertEqual(CHARS_PER_TOKEN * chat.maxTokens(), chat.MAX_MESSAGE_LENGTH());
   assertEqual(testDocSize, chat.DYNAMIC_JSON_DOC_SIZE());
 }
