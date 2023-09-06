@@ -129,50 +129,46 @@ class ChatBox {
   struct Message {
     enum Roles role;
     char* content;
-    int length;
+    uint32_t length;
   };
 
 public:
   // @param maxTokens
   // @param numMsgs
-  ChatBox(uint16_t maxTokens, int numMsgs);
+  ChatBox(uint32_t maxTokens, uint16_t numMsgs);
   ~ChatBox();
 
   bool init(const char* key, const char* model);
 
   // Getters
-  uint16_t maxTokens() const {
+  uint32_t maxTokens() const {
     return _maxTokens;
   }
 
-  int numMessages() const {
+  uint16_t numMessages() const {
     return _maxMsgs;
   }
 
-  int msgCount() const {
+  uint16_t msgCount() const {
     return _msgCount;
   }
 
-  int MAX_MESSAGE_LENGTH() const {
+  uint32_t MAX_MESSAGE_LENGTH() const {
     return _MAX_MESSAGE_LENGTH;
   }
 
-  long DYNAMIC_JSON_DOC_SIZE() const {
+  uint32_t DYNAMIC_JSON_DOC_SIZE() const {
     return _DYNAMIC_JSON_DOC_SIZE;
   }
 
   char* getLastMessageContent() const;
 
-  int getLastMessageLength() const;
+  uint32_t getLastMessageLength() const;
 
   Roles getLastMessageRole() const;
 
-  /* Steve Q3 *************************************************************************************
-  I have always used byte, int, long as datatypes, 
-  but I am starting to wonder if ought to use fixed width types uint8_t, uint16_t, etc...
-*/
   // Dev
-  char* contentPtrs(int i) const {
+  char* contentPtrs(uint16_t i) const {
     return _messages[i].content;
   };
 
@@ -180,12 +176,12 @@ public:
     return _model;
   };
 
-  Roles* rolePtrs(int i) const {
+  Roles* rolePtrs(uint16_t i) const {
     return &_messages[i].role;
   };
 
   // Setters
-  int putMessage(const char* msg, int msgLength, Roles msgRole = user);
+  uint32_t putMessage(const char* msg, uint32_t msgLength, Roles msgRole = user);
 
   // Functions
   DynamicJsonDocument generateJsonRequestBody();
@@ -197,11 +193,11 @@ public:
 
 
 private:
-  uint16_t _maxTokens;
-  int _maxMsgs;
-  int _msgCount;
-  int _MAX_MESSAGE_LENGTH;
-  long _DYNAMIC_JSON_DOC_SIZE;
+  uint32_t _maxTokens;
+  uint16_t _maxMsgs;
+  uint16_t _msgCount;
+  uint32_t _MAX_MESSAGE_LENGTH;
+  uint32_t _DYNAMIC_JSON_DOC_SIZE;
   char* _secret_key;
   char* _model;
   Message* _messages;

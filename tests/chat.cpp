@@ -9,7 +9,7 @@
 namespace ChatGPTuino {
 
 // Constructor
-ChatBox::ChatBox(uint16_t maxTokens = MIN_TOKENS, const int maxMsgs = MIN_MESSAGES)
+ChatBox::ChatBox(uint32_t maxTokens = MIN_TOKENS, const uint16_t maxMsgs = MIN_MESSAGES)
   : _maxTokens{ maxTokens > MIN_TOKENS ? maxTokens : MIN_TOKENS },
     _maxMsgs{ maxMsgs > MIN_MESSAGES ? maxMsgs : MIN_MESSAGES },
     _msgCount{ 0 },
@@ -108,7 +108,7 @@ Roles ChatBox::getLastMessageRole() const {
   }
 }
 
-int ChatBox::getLastMessageLength() const {
+uint32_t ChatBox::getLastMessageLength() const {
 
   if (_msgCount == 0) {
     // No message yet, do nothing.
@@ -127,7 +127,7 @@ void ChatBox::safe_strncpy(char* dest, size_t destSize, const char* src) {
   dest[srcSize] = '\0';
 }
 
-int ChatBox::putMessage(const char* msg, int msgLength, Roles msgRole) {
+uint32_t ChatBox::putMessage(const char* msg, uint32_t msgLength, Roles msgRole) {
 
   safe_strncpy(_messages[(_msgCount % _maxMsgs)].content, _MAX_MESSAGE_LENGTH, msg);
   _messages[(_msgCount % _maxMsgs)].role = msgRole;

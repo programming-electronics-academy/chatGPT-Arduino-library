@@ -19,10 +19,10 @@ test(ChatBox_itializes_with_valid_values) {
   chat.init(test_key, model);
   long testDocSize = 3056; //Based on Arduino JSON 6 assistant
   assertEqual((const char *)model, (const char *)chat.model());
-  assertEqual(chat.maxTokens(), MIN_TOKENS);
+  assertEqual((long)chat.maxTokens(), (long)MIN_TOKENS);
   assertEqual(chat.numMessages(), MIN_MESSAGES);
-  assertEqual(CHARS_PER_TOKEN * chat.maxTokens(), chat.MAX_MESSAGE_LENGTH());
-  assertEqual(testDocSize, chat.DYNAMIC_JSON_DOC_SIZE());
+  assertEqual((long)(CHARS_PER_TOKEN * chat.maxTokens()), (long)chat.MAX_MESSAGE_LENGTH());
+  assertEqual(testDocSize, (long)chat.DYNAMIC_JSON_DOC_SIZE());
 }
 
 test(init_allocates_space_for_message_contexts) {
@@ -116,7 +116,7 @@ test(getResponse_puts_response_length_in_messages) {
   chat.putMessage(testMessage,strlen(testMessage), ChatGPTuino::Roles::user);
   chat.getResponse();
 
-  assertEqual(4, chat.getLastMessageLength());
+  assertEqual((long)4, (long)chat.getLastMessageLength());
 }
 
 
