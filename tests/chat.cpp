@@ -11,12 +11,25 @@ namespace ChatGPTuino {
 // Constructor
 ChatBox::ChatBox(uint32_t maxTokens = MIN_TOKENS, const uint16_t maxMsgs = MIN_MESSAGES)
   : _maxTokens{ maxTokens > MIN_TOKENS ? maxTokens : MIN_TOKENS },
-    _maxMsgs{ maxMsgs > MIN_MESSAGES ? maxMsgs : (uint16_t)MIN_MESSAGES }, 
+    _maxMsgs{ maxMsgs > MIN_MESSAGES ? maxMsgs : (uint16_t)MIN_MESSAGES },
     /** STEVE Q1 ************************************************
+    After changing from into to uint16_t, I started getting this warning for the line of code above:
 
-    After changing form into to uint16_t, I started gettgin this warning.  I added a cast to MIN_MESSAGES.  Makes 
     	warning: narrowing conversion of '((((int)maxMsgs) > 5) ? ((int)((uint16_t)maxMsgs)) : 5)' from 'int' to 'uint16_t' {aka 'short unsigned int'} inside { } [-Wnarrowing]
 	     _maxMsgs{ maxMsgs > MIN_MESSAGES ? maxMsgs : MIN_MESSAGES },
+
+    My research pointed me to "integral promotion" and some stuff about "Value categories" that I am still trying to digest...
+    https://en.cppreference.com/w/cpp/language/value_category#prvalue
+    https://stackoverflow.com/questions/47543097/g-warning-conversion-to-uint16-t-from-int-may-alter-its-value
+
+    I'm not entirely sure I understand the warning to be honest - 
+    I can't tell if it is talking about the comparison -> (maxMsgs > MIN_MESSAGES) 
+    or the assignment made after the comparison ->  ? maxMsgs : MIN_MESSAGES
+
+    I guess my question here is...
+      Does adding the cast make sense to you?
+      I this a case where I acknowledge and then ignore the warning?
+       
     **/
     _msgCount{ 0 },
     _MAX_MESSAGE_LENGTH{ _maxTokens * CHARS_PER_TOKEN },

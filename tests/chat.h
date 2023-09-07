@@ -36,30 +36,8 @@ namespace ChatGPTuino {
 
 // #define DEBUG_SERVER_RESPONSE_BREAKING
 
-/*************** Open AI endpoint and connection details ****************/
-/* Steve Q8 *************************************************************************************
-  I wanted to have these constants defined below, but I am getting a "first defined here....multiple definition of"  error:
-  /Users/michaelcheich/Library/Arduino15/packages/esp32/tools/xtensa-esp32-elf-gcc/esp-2021r2-patch5-8.4.0/bin/..
-  /lib/gcc/xtensa-esp32-elf/8.4.0/../../../../xtensa-esp32-elf/bin/ld: 
-  /private/var/folders/8b/4_8vt9nx4_s55hvgnj8c_d1w0000gn/
-  T/arduino/sketches/93275D481CA90387E1BD008F29A2471C/sketch/tests.ino.cpp.o:
-  (.data._ZN11ChatGPTuino17OPEN_AI_END_POINTE+0x0): 
-  
-  multiple definition of `ChatGPTuino::OPEN_AI_END_POINT'; 
-  /private/var/folders/8b/4_8vt9nx4_s55hvgnj8c_d1w0000gn/T/arduino/sketches/93275D481CA90387E1BD008F29A2471C/sketch/chat.cpp.o:
-  (.data._ZN11ChatGPTuino17OPEN_AI_END_POINTE+0x0): first defined here
-  collect2: error: ld returned 1 exit status
-
-  exit status 1
-
-  when using them here, so I when with #define macros.  Do you have any thoughts on this?
-*/
-// #define OPEN_AI_END_POINT "https://api.openai.com/v1/chat/completions"
-inline const char* OPEN_AI_END_POINT = "https://api.openai.com/v1/chat/completions";
-
+#define OPEN_AI_END_POINT "https://api.openai.com/v1/chat/completions"
 #define OPEN_AI_SERVER "api.openai.com"
-// const char* OPEN_AI_SERVER = "api.openai.com";
-
 //OpenAI API endpoint root certificate used to ensure response is actually from OpenAPI
 // TODO - Verify that the certificate matters!  Have a check that verifys the connection is secure.
 #define ROOT_CA_CERT "-----BEGIN CERTIFICATE-----\n" \
