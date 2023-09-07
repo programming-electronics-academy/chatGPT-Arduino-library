@@ -11,7 +11,13 @@ namespace ChatGPTuino {
 // Constructor
 ChatBox::ChatBox(uint32_t maxTokens = MIN_TOKENS, const uint16_t maxMsgs = MIN_MESSAGES)
   : _maxTokens{ maxTokens > MIN_TOKENS ? maxTokens : MIN_TOKENS },
-    _maxMsgs{ maxMsgs > MIN_MESSAGES ? maxMsgs : MIN_MESSAGES },
+    _maxMsgs{ maxMsgs > MIN_MESSAGES ? maxMsgs : (uint16_t)MIN_MESSAGES }, 
+    /** STEVE Q1 ************************************************
+
+    After changing form into to uint16_t, I started gettgin this warning.  I added a cast to MIN_MESSAGES.  Makes 
+    	warning: narrowing conversion of '((((int)maxMsgs) > 5) ? ((int)((uint16_t)maxMsgs)) : 5)' from 'int' to 'uint16_t' {aka 'short unsigned int'} inside { } [-Wnarrowing]
+	     _maxMsgs{ maxMsgs > MIN_MESSAGES ? maxMsgs : MIN_MESSAGES },
+    **/
     _msgCount{ 0 },
     _MAX_MESSAGE_LENGTH{ _maxTokens * CHARS_PER_TOKEN },
     _DYNAMIC_JSON_DOC_SIZE{
@@ -101,8 +107,9 @@ char* ChatBox::getLastMessageContent() const {
 Roles ChatBox::getLastMessageRole() const {
 
   if (_msgCount == 0) {
-    // No message yet, do nothing.
+    Roles noMessage = none;
     Serial.println("No message to get.");
+    return noMessage;
   } else {
     return _messages[(_msgCount - 1) % _maxMsgs].role;
   }

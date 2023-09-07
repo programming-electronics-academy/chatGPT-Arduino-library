@@ -36,7 +36,6 @@ namespace ChatGPTuino {
 
 // #define DEBUG_SERVER_RESPONSE_BREAKING
 
-
 /*************** Open AI endpoint and connection details ****************/
 /* Steve Q8 *************************************************************************************
   I wanted to have these constants defined below, but I am getting a "first defined here....multiple definition of"  error:
@@ -112,11 +111,15 @@ const char* ROOT_CA_CERT =
 
 enum Roles { sys,
              user,
-             assistant };
+             assistant,
+             function,
+             none };
 
-const char RoleNames[3][10] = { "system",
+const char RoleNames[5][10] = { "system",
                                 "user",
-                                "assistant" };
+                                "assistant",
+                                "function",
+                                "none" };
 
 
 enum getResponseCodes { getResponseSuccess,
