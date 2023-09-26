@@ -1,7 +1,7 @@
-#include "chat.h"
 #include <AUnit.h>    // Testing
-#include "secrets.h"  // Network name, password, and private API key
 #include <WiFi.h>     // ESP32
+#include "chat.h"     
+#include "secrets.h"  // Network name, password, and private API key
 
 using namespace ChatGPTuino;
 

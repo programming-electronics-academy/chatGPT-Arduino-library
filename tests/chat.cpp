@@ -1,19 +1,13 @@
-#include <sys/_stdint.h>
-#include <cstring>
-#include <cstddef>
-#include "HardwareSerial.h"
-#include <stdlib.h>
-#include <Arduino.h>
 #include "chat.h"
 
-namespace ChatGPTuino {
+using namespace ChatGPTuino;
 
 // Constructor
 ChatBox::ChatBox(uint32_t maxTokens = MIN_TOKENS, const uint16_t maxMsgs = MIN_MESSAGES)
   : _maxTokens{ maxTokens > MIN_TOKENS ? maxTokens : MIN_TOKENS },
     _maxMsgs{ maxMsgs > MIN_MESSAGES ? maxMsgs : (uint16_t)MIN_MESSAGES },
     /** STEVE Q1 ************************************************
-    After changing from into to uint16_t, I started getting this warning for the line of code above:
+    After changing from int to uint16_t, I started getting this warning for the line of code above:
 
     	warning: narrowing conversion of '((((int)maxMsgs) > 5) ? ((int)((uint16_t)maxMsgs)) : 5)' from 'int' to 'uint16_t' {aka 'short unsigned int'} inside { } [-Wnarrowing]
 	     _maxMsgs{ maxMsgs > MIN_MESSAGES ? maxMsgs : MIN_MESSAGES },
@@ -107,16 +101,13 @@ char* ChatBox::getLastMessageContent() const {
   if (_msgCount == 0) {
     // No message yet, do nothing.
     Serial.println("No message to get.");
-    return nullptr;  // Steve Q99 - I think this is what I want to return in the case there are no messages
+    return nullptr;
   } else {
     return _messages[(_msgCount - 1) % _maxMsgs].content;
   }
 }
 
-/* Steve Q6 *************************************************************************************
-  I have this function that returns a role, but only if a message exists.  If no message exist, it returns nothing...
-  Is there something I can return that makes sense, like "null" role?
-*/
+
 Roles ChatBox::getLastMessageRole() const {
 
   if (_msgCount == 0) {
@@ -212,23 +203,6 @@ getResponseCodes ChatBox::getResponse() {
     Serial.print(line);
 #endif
 
-    /* Steve Q10 *************************************************************************************
-      The end user may have to wait for the server response, 
-      I want them to be able to get an indication that they are waiting so they can do something
-      else, but I am not sure how to handle this.
-
-      For example, it would be nice if the end user could use
-      
-      while(!getResponse()){
-        //do something
-      }
-
-      But my issue is, getReponse may take a couple seconds to return if it is waiting on the server
-      and I want the user to be able to do something in those seconds.  
-      
-      I guess what I want is for getResponse to be working "in the background"? So it doesn't hold up the rest of the users program.
-    */
-
     //  Wait for OpenAI response
     bool responseSuccess = waitForServerResponse(&client);
 
@@ -302,8 +276,17 @@ bool ChatBox::waitForServerResponse(WiFiClientSecure* pClient) {
 
   bool responseSuccess = true;
   long startWaitTime = millis();  // Measure how long it takes
+  long displayWaitTime = startWaitTime;  // Display a "." to indicate waiting
+  const long displayWaitInterval = 500;
 
   while (pClient->available() == 0) {
+
+    // Give visual indication of waiting
+    if (millis() - displayWaitTime > displayWaitInterval) {
+      Serial.print("...");
+      displayWaitTime = millis();
+    }
+
     /* If you've been waiting too long, perhaps something went wrong,
         break out and try again. */
     if (millis() - startWaitTime > SERVER_RESPONSE_WAIT_TIME) {
@@ -312,6 +295,7 @@ bool ChatBox::waitForServerResponse(WiFiClientSecure* pClient) {
     }
   }
 
+  Serial.println("");
   return responseSuccess;
 }
 
@@ -372,4 +356,4 @@ bool ChatBox::putResponseInMsgArray(WiFiClientSecure* pClient) {
 }
 
 
-}  // close namespace
+//}  // close namespace
