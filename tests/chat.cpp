@@ -6,25 +6,6 @@ using namespace ChatGPTuino;
 ChatBox::ChatBox(uint32_t maxTokens = MIN_TOKENS, const uint16_t maxMsgs = MIN_MESSAGES)
   : _maxTokens{ maxTokens > MIN_TOKENS ? maxTokens : MIN_TOKENS },
     _maxMsgs{ maxMsgs > MIN_MESSAGES ? maxMsgs : (uint16_t)MIN_MESSAGES },
-    /** STEVE Q1 ************************************************
-    After changing from int to uint16_t, I started getting this warning for the line of code above:
-
-    	warning: narrowing conversion of '((((int)maxMsgs) > 5) ? ((int)((uint16_t)maxMsgs)) : 5)' from 'int' to 'uint16_t' {aka 'short unsigned int'} inside { } [-Wnarrowing]
-	     _maxMsgs{ maxMsgs > MIN_MESSAGES ? maxMsgs : MIN_MESSAGES },
-
-    My research pointed me to "integral promotion" and some stuff about "Value categories" that I am still trying to digest...
-    https://en.cppreference.com/w/cpp/language/value_category#prvalue
-    https://stackoverflow.com/questions/47543097/g-warning-conversion-to-uint16-t-from-int-may-alter-its-value
-
-    I'm not entirely sure I understand the warning to be honest - 
-    I can't tell if it is talking about the comparison -> (maxMsgs > MIN_MESSAGES) 
-    or the assignment made after the comparison ->  ? maxMsgs : MIN_MESSAGES
-
-    I guess my question here is...
-      Does adding the cast make sense to you?
-      I this a case where I acknowledge and then ignore the warning?
-       
-    **/
     _msgCount{ 0 },
     _MAX_MESSAGE_LENGTH{ _maxTokens * CHARS_PER_TOKEN },
     _DYNAMIC_JSON_DOC_SIZE{
@@ -323,9 +304,9 @@ bool ChatBox::putResponseInMsgArray(WiFiClientSecure* pClient) {
 
   // Deserialize the JSON
   //TODO - I want capacity to be determined by the tokens the end user initilazes with.
-  //But I can't figure out how to make this work.  JSON_OBJECT_SIZE() does not seem to size for what's will be stored in the JSON doc.
+  //But I can't figure out how to make this work.  JSON_OBJECT_SIZE() does not seem to size for what will be stored in the JSON doc.
   //https://arduinojson.org/v6/how-to/determine-the-capacity-of-the-jsondocument/#technique-2-compute-the-capacity-with-macros
-  //const int capacityTest = MAX_TOKENS * CHARS_PER_TOKEN; //-> this did not work either, was getting a stack overflow, i think trying to take up too much space
+  //const int capacityTest = MAX_TOKENS * CHARS_PER_TOKEN; //-> this did not work either, was getting a stack overflow, i think trying to take up too much space?
   const int capacity = 2000;
   StaticJsonDocument<capacity> jsonResponse;
   DeserializationError error = deserializeJson(jsonResponse, *pClient, DeserializationOption::Filter(filter));
