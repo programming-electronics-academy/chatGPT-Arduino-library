@@ -335,6 +335,3 @@ bool ChatBox::putResponseInMsgArray(WiFiClientSecure* pClient) {
 
   return 1;
 }
-
-
-//}  // close namespace
