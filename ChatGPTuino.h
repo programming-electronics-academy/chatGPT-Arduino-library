@@ -5,13 +5,8 @@
 #include <ArduinoJson.h>       // Handle JSON formatting for API calls
 #include <WiFiClientSecure.h>  // ESP32
 
-/* Steve Q42 *************************************************************************************
-  I think I am using namespace correct, but then again - not feeling overly confident :)
-*/
-namespace ChatGPTuino {
-
 #define MIN_TOKENS 50
-#define MAX_TOKENS 2000  // Used for sizing JSON reponse
+#define MAX_TOKENS 2000  // Used for sizing JSON response
 #define MIN_MESSAGES 5
 #define CHARS_PER_TOKEN 6
 
@@ -75,7 +70,7 @@ enum getResponseCodes { getResponseSuccess,
                         serverDidNotRespond
 };
 
-class ChatBox {
+class ChatGPTuino {
 
   struct Message {
     enum Roles role;
@@ -86,8 +81,8 @@ class ChatBox {
 public:
   // @param maxTokens
   // @param numMsgs
-  ChatBox(uint32_t maxTokens, uint16_t numMsgs);
-  ~ChatBox();
+  ChatGPTuino(uint32_t maxTokens, uint16_t numMsgs);
+  ~ChatGPTuino();
 
   bool init(const char* key, const char* model);
 
@@ -155,6 +150,4 @@ private:
 };
 
 
-}  //close namespace
-
-#endif
+#endif // ChatGPTuino.h

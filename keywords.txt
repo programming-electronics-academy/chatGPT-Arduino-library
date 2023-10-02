@@ -1,0 +1,36 @@
+#######################################
+# Syntax Coloring Map For ChatGPTuino
+#######################################
+# Class
+#######################################
+
+ChatGPTuino   KEYWORD1
+
+#######################################
+# Methods and Functions
+#######################################	
+
+init		                KEYWORD2
+getLastMessageContent		KEYWORD2
+getLastMessageRole			KEYWORD2
+getLastMessageLength		KEYWORD2
+putMessage			        KEYWORD2
+getResponse		          KEYWORD2
+
+#######################################
+# Constants
+#######################################
+
+MIN_TOKENS                            LITERAL1
+MAX_TOKENS                            LITERAL1
+MIN_MESSAGES                          LITERAL1
+CHARS_PER_TOKEN                       LITERAL1
+JSON_DATA_STRUCTURE_MEMORY_BASE       LITERAL1
+JSON_DATA_STRUCTURE_MEMORY_PER_MSG    LITERAL1
+JSON_KEY_STRING_MEMORY_BASE           LITERAL1
+JSON_VALUE_STRING_MEMORY_PER_MSG      LITERAL1
+JSON_MEMORY_SLACK                     LITERAL1
+SERVER_RESPONSE_WAIT_TIME             LITERAL1
+DEBUG_SERVER_RESPONSE_BREAKING        LITERAL1
+OPEN_AI_END_POINT                     LITERAL1
+OPEN_AI_SERVER                        LITERAL1

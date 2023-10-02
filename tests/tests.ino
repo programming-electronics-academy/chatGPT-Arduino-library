@@ -1,9 +1,7 @@
 #include <AUnit.h>    // Testing
 #include <WiFi.h>     // ESP32
-#include "chat.h"     
-#include "secrets.h"  // Network name, password, and private API key
-
-using namespace ChatGPTuino;
+#include <ChatGPTuino.h>
+#include <secrets.h>  // Network name, password, and private API key
 
 #define TESTING_ON 1
 
@@ -15,7 +13,7 @@ const char *model = "gpt-3.5-turbo";
 #if TESTING_ON
 test(ChatBox_itializes_with_valid_values) {
 
-  ChatBox chat{ 0, 0 };
+  ChatGPTuino chat{ 0, 0 };
   chat.init(test_key, model);
   long testDocSize = 3056; //Based on Arduino JSON 6 assistant
   assertEqual((const char *)model, (const char *)chat.model());
@@ -27,7 +25,7 @@ test(ChatBox_itializes_with_valid_values) {
 
 test(init_allocates_space_for_message_contexts) {
 
-  ChatGPTuino::ChatBox chat{ 10, 5 };
+  ChatGPTuino chat{ 10, 5 };
   chat.init(test_key, model);
 
   for (int i = 0; i < chat.numMessages() - 1; i++) {
@@ -43,7 +41,7 @@ test(init_allocates_space_for_message_contexts) {
 
 test(putMessage_puts_message_in_next_available_slot) {
 
-  ChatGPTuino::ChatBox chat{ 10, 4 };
+  ChatGPTuino chat{ 10, 4 };
   chat.init(test_key, model);
 
   char *testMessage = "testing_1";
@@ -58,7 +56,7 @@ test(putMessage_puts_message_in_next_available_slot) {
 }
 
 test(putMessage_assigns_default_role_of_message_to_user) {
-  ChatGPTuino::ChatBox chat{ 10, 4 };
+  ChatGPTuino chat{ 10, 4 };
   chat.init(test_key, model);
 
   char *testMessage = "testing_1";
@@ -68,21 +66,21 @@ test(putMessage_assigns_default_role_of_message_to_user) {
 }
 
 test(putMessage_assigns_specified_role_to_message) {
-  ChatGPTuino::ChatBox chat{ 10, 4 };
+  ChatGPTuino chat{ 10, 4 };
   chat.init(test_key, model);
 
   char *testMessage = "testing_1";
-  chat.putMessage(testMessage, strlen(testMessage), ChatGPTuino::Roles::assistant);
+  chat.putMessage(testMessage, strlen(testMessage), Roles::assistant);
 
-  assertEqual(ChatGPTuino::Roles::assistant, chat.getLastMessageRole());
+  assertEqual(Roles::assistant, chat.getLastMessageRole());
 }
 
 test(generateJsonRequestBody_returns_valid_Json) {
-  ChatGPTuino::ChatBox chat{ 10, 4 };
+  ChatGPTuino chat{ 10, 4 };
   chat.init(test_key, model);
 
   char *testMessage = "JSON body testing";
-  chat.putMessage(testMessage, ChatGPTuino::Roles::user);
+  chat.putMessage(testMessage, Roles::user);
 
   DynamicJsonDocument testDoc = chat.generateJsonRequestBody();
 
@@ -91,29 +89,29 @@ test(generateJsonRequestBody_returns_valid_Json) {
   assertEqual((const char *)chat.getLastMessageContent(), (const char *)testDoc["messages"][0]["content"]);
 
   char *testMessage2 = "JSON body testing2";
-  chat.putMessage(testMessage2, strlen(testMessage2), ChatGPTuino::Roles::user);
+  chat.putMessage(testMessage2, strlen(testMessage2), Roles::user);
   testDoc = chat.generateJsonRequestBody();
 
   assertEqual((const char *)chat.getLastMessageContent(), (const char *)testDoc["messages"][1]["content"]);
 }
 
 test(getResponse_puts_response_in_messages) {
-  ChatGPTuino::ChatBox chat{ 10, 4 };
+  ChatGPTuino chat{ 10, 4 };
   chat.init(openAI_Private_key, model);
 
   char *testMessage = "Please respond with the only the word TEST";
-  chat.putMessage(testMessage, strlen(testMessage),ChatGPTuino::Roles::user);
+  chat.putMessage(testMessage, strlen(testMessage),Roles::user);
   chat.getResponse();
 
   assertEqual("TEST", (const char *)chat.getLastMessageContent());
 }
 
 test(getResponse_puts_response_length_in_messages) {
-  ChatGPTuino::ChatBox chat{ 10, 4 };
+  ChatGPTuino chat{ 10, 4 };
   chat.init(openAI_Private_key, model);
 
   char *testMessage = "Please respond with the only the word TEST";
-  chat.putMessage(testMessage,strlen(testMessage), ChatGPTuino::Roles::user);
+  chat.putMessage(testMessage,strlen(testMessage), Roles::user);
   chat.getResponse();
 
   assertEqual((long)4, (long)chat.getLastMessageLength());
