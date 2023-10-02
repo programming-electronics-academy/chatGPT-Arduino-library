@@ -256,7 +256,7 @@ void ChatBox::postRequest(DynamicJsonDocument* pJsonRequestBody, WiFiClientSecur
 bool ChatBox::waitForServerResponse(WiFiClientSecure* pClient) {
 
   bool responseSuccess = true;
-  long startWaitTime = millis();  // Measure how long it takes
+  long startWaitTime = millis();         // Measure how long it takes
   long displayWaitTime = startWaitTime;  // Display a "." to indicate waiting
   const long displayWaitInterval = 500;
 
@@ -303,10 +303,8 @@ bool ChatBox::putResponseInMsgArray(WiFiClientSecure* pClient) {
   filter_choices_0_message["content"] = true;
 
   // Deserialize the JSON
-  //TODO - I want capacity to be determined by the tokens the end user initilazes with.
-  //But I can't figure out how to make this work.  JSON_OBJECT_SIZE() does not seem to size for what will be stored in the JSON doc.
-  //https://arduinojson.org/v6/how-to/determine-the-capacity-of-the-jsondocument/#technique-2-compute-the-capacity-with-macros
-  //const int capacityTest = MAX_TOKENS * CHARS_PER_TOKEN; //-> this did not work either, was getting a stack overflow, i think trying to take up too much space?
+  // TODO - I want capacity to be determined by the tokens the end user initilazes with.
+  // https://arduinojson.org/v6/how-to/determine-the-capacity-of-the-jsondocument/#technique-2-compute-the-capacity-with-macros
   const int capacity = 2000;
   StaticJsonDocument<capacity> jsonResponse;
   DeserializationError error = deserializeJson(jsonResponse, *pClient, DeserializationOption::Filter(filter));
@@ -329,9 +327,7 @@ bool ChatBox::putResponseInMsgArray(WiFiClientSecure* pClient) {
   Serial.print(measureJson(jsonResponse["choices"][0]["message"]["content"]));
   Serial.print("  | strlng ");
   Serial.println(strlen(jsonResponse["choices"][0]["message"]["content"]));
-  // Benoît Q1
-  // Why does measureJson return 2 more than strlen?
-  putMessage(newMsg, measureJson(jsonResponse["choices"][0]["message"]["content"]) - 2, assistant);
+  putMessage(newMsg, measureJson(jsonResponse["choices"][0]["message"]["content"]) - 2, assistant);  // The -2 is adjusting for the ""
 
   return 1;
 }
