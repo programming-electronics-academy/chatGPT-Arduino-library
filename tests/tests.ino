@@ -1,7 +1,7 @@
-#include "chat.h"
 #include <AUnit.h>    // Testing
-#include "secrets.h"  // Network name, password, and private API key
 #include <WiFi.h>     // ESP32
+#include "chat.h"     
+#include "secrets.h"  // Network name, password, and private API key
 
 using namespace ChatGPTuino;
 
@@ -15,14 +15,14 @@ const char *model = "gpt-3.5-turbo";
 #if TESTING_ON
 test(ChatBox_itializes_with_valid_values) {
 
-  ChatBox chat{ -5, -5 };
+  ChatBox chat{ 0, 0 };
   chat.init(test_key, model);
   long testDocSize = 3056; //Based on Arduino JSON 6 assistant
   assertEqual((const char *)model, (const char *)chat.model());
+  assertEqual((long)chat.maxTokens(), (long)MIN_TOKENS);
   assertEqual(chat.numMessages(), MIN_MESSAGES);
-  assertEqual(chat.maxTokens(), MIN_TOKENS);
-  assertEqual(CHARS_PER_TOKEN * chat.maxTokens(), chat.MAX_MESSAGE_LENGTH());
-  assertEqual(testDocSize, chat.DYNAMIC_JSON_DOC_SIZE());
+  assertEqual((long)(CHARS_PER_TOKEN * chat.maxTokens()), (long)chat.MAX_MESSAGE_LENGTH());
+  assertEqual(testDocSize, (long)chat.DYNAMIC_JSON_DOC_SIZE());
 }
 
 test(init_allocates_space_for_message_contexts) {
@@ -116,7 +116,7 @@ test(getResponse_puts_response_length_in_messages) {
   chat.putMessage(testMessage,strlen(testMessage), ChatGPTuino::Roles::user);
   chat.getResponse();
 
-  assertEqual(4, chat.getLastMessageLength());
+  assertEqual((long)4, (long)chat.getLastMessageLength());
 }
 
 

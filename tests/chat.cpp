@@ -1,39 +1,25 @@
-#include <cstddef>
-#include "HardwareSerial.h"
-#include <stdlib.h>
-#include <Arduino.h>
 #include "chat.h"
 
-namespace ChatGPTuino {
+using namespace ChatGPTuino;
 
 // Constructor
-ChatBox::ChatBox(int maxTokens = MIN_TOKENS, const int maxMsgs = MIN_MESSAGES)
-  : _maxTokens{ maxTokens >= 0 ? maxTokens : MIN_TOKENS },
-    _maxMsgs{ maxMsgs >= 0 ? maxMsgs : MIN_MESSAGES },
+ChatBox::ChatBox(uint32_t maxTokens = MIN_TOKENS, const uint16_t maxMsgs = MIN_MESSAGES)
+  : _maxTokens{ maxTokens > MIN_TOKENS ? maxTokens : MIN_TOKENS },
+    _maxMsgs{ maxMsgs > MIN_MESSAGES ? maxMsgs : (uint16_t)MIN_MESSAGES },
     _msgCount{ 0 },
     _MAX_MESSAGE_LENGTH{ _maxTokens * CHARS_PER_TOKEN },
     _DYNAMIC_JSON_DOC_SIZE{
       (JSON_DATA_STRUCTURE_MEMORY_BASE + (_maxMsgs * JSON_DATA_STRUCTURE_MEMORY_PER_MSG)) + (JSON_KEY_STRING_MEMORY_BASE + ((_MAX_MESSAGE_LENGTH + JSON_VALUE_STRING_MEMORY_PER_MSG) * _maxMsgs)) + JSON_MEMORY_SLACK
-    } {
-  /* Steve Q4 *************************************************************************************
-  Maybe I should move this to init()?  
-  Maybe I should be be checking that "new" succeeds in it's memory allocation?
-*/
-  _messages = new Message[_maxMsgs];
-};
+    } {};
 
 // Destructor
 ChatBox::~ChatBox() {
 
-  /* Steve Q1 *************************************************************************************
-  I *think* I am freeing all the memory here that had been allocated in init()
-*/
-  // Free message content strings
-  free(_messages[0].content);  // This is the pointer returned from init()
+  free(_messages[0].content);  // Free message content strings
   free(_secret_key);
+  free(_model);
 
-  // Delete message structs
-  delete[] _messages;
+  delete[] _messages;  // Delete message structs
 };
 
 
@@ -41,11 +27,8 @@ bool ChatBox::init(const char* key, const char* model) {
 
   bool initSuccess = true;
 
-  /* Steve Q2 *************************************************************************************
-  I am trying to check for a NULL pointer returned by malloc, I think these expressions do the job
-*/
   // Allocate space for API key and assign
-  char* keyAlloc = (char*)malloc(API_KEY_SIZE * sizeof(char));
+  char* keyAlloc = (char*)malloc((strlen(key) + 1) * sizeof(char));
 
   if (keyAlloc) {
     _secret_key = keyAlloc;
@@ -56,13 +39,23 @@ bool ChatBox::init(const char* key, const char* model) {
   }
 
   // Allocate space for model and assign
-  char* modelAlloc = (char*)malloc(MODEL_NAME_SIZE * sizeof(char));
+  char* modelAlloc = (char*)malloc((strlen(model) + 1) * sizeof(char));
 
   if (modelAlloc) {
     _model = modelAlloc;
     strcpy(_model, model);
   } else {
     Serial.println("modelAlloc failed");
+    initSuccess = false;
+  }
+
+  //Allocate space for message structs
+  Message* messagesAlloc = new Message[_maxMsgs];
+
+  if (messagesAlloc) {
+    _messages = messagesAlloc;
+  } else {
+    Serial.println("messageAlloc failed");
     initSuccess = false;
   }
 
@@ -77,6 +70,7 @@ bool ChatBox::init(const char* key, const char* model) {
     }
 
   } else {
+    Serial.println("contentAlloc failed");
     initSuccess = false;
   }
 
@@ -88,27 +82,25 @@ char* ChatBox::getLastMessageContent() const {
   if (_msgCount == 0) {
     // No message yet, do nothing.
     Serial.println("No message to get.");
-    return nullptr;  // Steve Q99 - I think this is what I want to return in the case there are no messages
+    return nullptr;
   } else {
     return _messages[(_msgCount - 1) % _maxMsgs].content;
   }
 }
 
-/* Steve Q6 *************************************************************************************
-  I have this function that returns a role, but only if a message exists.  If no message exist, it returns nothing...
-  Is there something I can return that makes sense, like "null" role?
-*/
+
 Roles ChatBox::getLastMessageRole() const {
 
   if (_msgCount == 0) {
-    // No message yet, do nothing.
+    Roles noMessage = none;
     Serial.println("No message to get.");
+    return noMessage;
   } else {
     return _messages[(_msgCount - 1) % _maxMsgs].role;
   }
 }
 
-int ChatBox::getLastMessageLength() const {
+uint32_t ChatBox::getLastMessageLength() const {
 
   if (_msgCount == 0) {
     // No message yet, do nothing.
@@ -127,7 +119,7 @@ void ChatBox::safe_strncpy(char* dest, size_t destSize, const char* src) {
   dest[srcSize] = '\0';
 }
 
-int ChatBox::putMessage(const char* msg, int msgLength, Roles msgRole) {
+uint32_t ChatBox::putMessage(const char* msg, uint32_t msgLength, Roles msgRole) {
 
   safe_strncpy(_messages[(_msgCount % _maxMsgs)].content, _MAX_MESSAGE_LENGTH, msg);
   _messages[(_msgCount % _maxMsgs)].role = msgRole;
@@ -191,23 +183,6 @@ getResponseCodes ChatBox::getResponse() {
     String line = client.readStringUntil('X');
     Serial.print(line);
 #endif
-
-    /* Steve Q10 *************************************************************************************
-      The end user may have to wait for the server response, 
-      I want them to be able to get an indication that they are waiting so they can do something
-      else, but I am not sure how to handle this.
-
-      For example, it would be nice if the end user could use
-      
-      while(!getResponse()){
-        //do something
-      }
-
-      But my issue is, getReponse may take a couple seconds to return if it is waiting on the server
-      and I want the user to be able to do something in those seconds.  
-      
-      I guess what I want is for getResponse to be working "in the background"? So it doesn't hold up the rest of the users program.
-    */
 
     //  Wait for OpenAI response
     bool responseSuccess = waitForServerResponse(&client);
@@ -282,8 +257,17 @@ bool ChatBox::waitForServerResponse(WiFiClientSecure* pClient) {
 
   bool responseSuccess = true;
   long startWaitTime = millis();  // Measure how long it takes
+  long displayWaitTime = startWaitTime;  // Display a "." to indicate waiting
+  const long displayWaitInterval = 500;
 
   while (pClient->available() == 0) {
+
+    // Give visual indication of waiting
+    if (millis() - displayWaitTime > displayWaitInterval) {
+      Serial.print("...");
+      displayWaitTime = millis();
+    }
+
     /* If you've been waiting too long, perhaps something went wrong,
         break out and try again. */
     if (millis() - startWaitTime > SERVER_RESPONSE_WAIT_TIME) {
@@ -292,6 +276,7 @@ bool ChatBox::waitForServerResponse(WiFiClientSecure* pClient) {
     }
   }
 
+  Serial.println("");
   return responseSuccess;
 }
 
@@ -319,9 +304,9 @@ bool ChatBox::putResponseInMsgArray(WiFiClientSecure* pClient) {
 
   // Deserialize the JSON
   //TODO - I want capacity to be determined by the tokens the end user initilazes with.
-  //But I can't figure out how to make this work.  JSON_OBJECT_SIZE() does not seem to size for what's will be stored in the JSON doc.
+  //But I can't figure out how to make this work.  JSON_OBJECT_SIZE() does not seem to size for what will be stored in the JSON doc.
   //https://arduinojson.org/v6/how-to/determine-the-capacity-of-the-jsondocument/#technique-2-compute-the-capacity-with-macros
-  //const int capacityTest = MAX_TOKENS * CHARS_PER_TOKEN; //-> this did not work either, was getting a stack overflow, i think trying to take up too much space
+  //const int capacityTest = MAX_TOKENS * CHARS_PER_TOKEN; //-> this did not work either, was getting a stack overflow, i think trying to take up too much space?
   const int capacity = 2000;
   StaticJsonDocument<capacity> jsonResponse;
   DeserializationError error = deserializeJson(jsonResponse, *pClient, DeserializationOption::Filter(filter));
@@ -350,6 +335,3 @@ bool ChatBox::putResponseInMsgArray(WiFiClientSecure* pClient) {
 
   return 1;
 }
-
-
-}  // close namespace
