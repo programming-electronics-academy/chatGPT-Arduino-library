@@ -25,6 +25,7 @@
 #define SERVER_RESPONSE_WAIT_TIME (15 * 1000)  // How long to wait for a server response (seconds * 1000)
 
 // #define DEBUG_SERVER_RESPONSE_BREAKING
+// #define VERBOSE_PRINTS
 
 #define OPEN_AI_END_POINT "https://api.openai.com/v1/chat/completions"
 #define OPEN_AI_SERVER "api.openai.com"

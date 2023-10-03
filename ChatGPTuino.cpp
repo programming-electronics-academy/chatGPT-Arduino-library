@@ -219,7 +219,10 @@ getResponseCodes ChatGPTuino::getResponse() {
  */
 void ChatGPTuino::postRequest(DynamicJsonDocument* pJsonRequestBody, WiFiClientSecure* pClient) {
 
+#ifdef VERBOSE_PRINTS
   Serial.println("    | Making POST Request to OpenAI");
+#endif
+
   // Make request
   pClient->print("POST ");
   pClient->print(OPEN_AI_END_POINT);
@@ -239,7 +242,9 @@ void ChatGPTuino::postRequest(DynamicJsonDocument* pJsonRequestBody, WiFiClientS
   serializeJson(*pJsonRequestBody, *pClient);  // Serialize the JSON doc and append to client object
   pClient->println();                          // Send the body to the server
 
+#ifdef VERBOSE_PRINTS
   Serial.println("    | JSON sent");
+#endif
 }
 
 /* Function:  waitForServerResponse
@@ -290,7 +295,10 @@ bool ChatGPTuino::waitForServerResponse(WiFiClientSecure* pClient) {
  */
 bool ChatGPTuino::putResponseInMsgArray(WiFiClientSecure* pClient) {
 
+#ifdef VERBOSE_PRINTS
   Serial.println("    | putResponseInMsgArray");
+#endif
+
   pClient->find("\r\n\r\n");  // This search gets us to the body section of the http response
 
   /* Create a filter for the returning JSON 
@@ -319,11 +327,15 @@ bool ChatGPTuino::putResponseInMsgArray(WiFiClientSecure* pClient) {
   }
 
   const char* newMsg = jsonResponse["choices"][0]["message"]["content"] | "...";
+
+#ifdef VERBOSE_PRINTS
   Serial.println(newMsg);
   Serial.print("measureJSON ");
   Serial.print(measureJson(jsonResponse["choices"][0]["message"]["content"]));
   Serial.print("  | strlng ");
   Serial.println(strlen(jsonResponse["choices"][0]["message"]["content"]));
+#endif
+
   putMessage(newMsg, measureJson(jsonResponse["choices"][0]["message"]["content"]) - 2, assistant);  // The -2 is adjusting for the ""
 
   return 1;

@@ -20,10 +20,13 @@ void setup() {
   // Initialize messages array
   chat.init(key, model);
 
-  char *userMessage = "Hello ChatGPT";  // User message to ChatGPT
+  const char *userMessage = "Hello ChatGPT";  // User message to ChatGPT
+  const char *systemMessage = "Please respond like a pirate";  // System message to ChatGPT
   
-  // Add message to messages array
+  // Add user message to messages array
   chat.putMessage(userMessage, strlen(userMessage));
+  // Add system message to messages array
+  chat.putMessage(systemMessage, strlen(systemMessage), sys);
   
   // Send message array and receive response
   chat.getResponse();

@@ -97,7 +97,7 @@ test(generateJsonRequestBody_returns_valid_Json) {
 
 test(getResponse_puts_response_in_messages) {
   ChatGPTuino chat{ 10, 4 };
-  chat.init(openAI_Private_key, model);
+  chat.init(key, model);
 
   char *testMessage = "Please respond with the only the word TEST";
   chat.putMessage(testMessage, strlen(testMessage),Roles::user);
@@ -108,7 +108,7 @@ test(getResponse_puts_response_in_messages) {
 
 test(getResponse_puts_response_length_in_messages) {
   ChatGPTuino chat{ 10, 4 };
-  chat.init(openAI_Private_key, model);
+  chat.init(key, model);
 
   char *testMessage = "Please respond with the only the word TEST";
   chat.putMessage(testMessage,strlen(testMessage), Roles::user);
