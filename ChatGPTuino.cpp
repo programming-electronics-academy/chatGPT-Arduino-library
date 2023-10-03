@@ -1,9 +1,7 @@
-#include "chat.h"
-
-using namespace ChatGPTuino;
+#include "ChatGPTuino.h"
 
 // Constructor
-ChatBox::ChatBox(uint32_t maxTokens = MIN_TOKENS, const uint16_t maxMsgs = MIN_MESSAGES)
+ChatGPTuino::ChatGPTuino(uint32_t maxTokens = MIN_TOKENS, const uint16_t maxMsgs = MIN_MESSAGES)
   : _maxTokens{ maxTokens > MIN_TOKENS ? maxTokens : MIN_TOKENS },
     _maxMsgs{ maxMsgs > MIN_MESSAGES ? maxMsgs : (uint16_t)MIN_MESSAGES },
     _msgCount{ 0 },
@@ -13,7 +11,7 @@ ChatBox::ChatBox(uint32_t maxTokens = MIN_TOKENS, const uint16_t maxMsgs = MIN_M
     } {};
 
 // Destructor
-ChatBox::~ChatBox() {
+ChatGPTuino::~ChatGPTuino() {
 
   free(_messages[0].content);  // Free message content strings
   free(_secret_key);
@@ -23,7 +21,7 @@ ChatBox::~ChatBox() {
 };
 
 
-bool ChatBox::init(const char* key, const char* model) {
+bool ChatGPTuino::init(const char* key, const char* model) {
 
   bool initSuccess = true;
 
@@ -77,7 +75,7 @@ bool ChatBox::init(const char* key, const char* model) {
   return initSuccess;
 }
 
-char* ChatBox::getLastMessageContent() const {
+char* ChatGPTuino::getLastMessageContent() const {
 
   if (_msgCount == 0) {
     // No message yet, do nothing.
@@ -89,7 +87,7 @@ char* ChatBox::getLastMessageContent() const {
 }
 
 
-Roles ChatBox::getLastMessageRole() const {
+Roles ChatGPTuino::getLastMessageRole() const {
 
   if (_msgCount == 0) {
     Roles noMessage = none;
@@ -100,7 +98,7 @@ Roles ChatBox::getLastMessageRole() const {
   }
 }
 
-uint32_t ChatBox::getLastMessageLength() const {
+uint32_t ChatGPTuino::getLastMessageLength() const {
 
   if (_msgCount == 0) {
     // No message yet, do nothing.
@@ -111,7 +109,7 @@ uint32_t ChatBox::getLastMessageLength() const {
   }
 }
 
-void ChatBox::safe_strncpy(char* dest, size_t destSize, const char* src) {
+void ChatGPTuino::safe_strncpy(char* dest, size_t destSize, const char* src) {
   size_t srcSize = strlen(src);  // crash here if not nul-terminated
   if (srcSize > destSize - 1)
     srcSize = destSize - 1;
@@ -119,7 +117,7 @@ void ChatBox::safe_strncpy(char* dest, size_t destSize, const char* src) {
   dest[srcSize] = '\0';
 }
 
-uint32_t ChatBox::putMessage(const char* msg, uint32_t msgLength, Roles msgRole) {
+uint32_t ChatGPTuino::putMessage(const char* msg, uint32_t msgLength, Roles msgRole) {
 
   safe_strncpy(_messages[(_msgCount % _maxMsgs)].content, _MAX_MESSAGE_LENGTH, msg);
   _messages[(_msgCount % _maxMsgs)].role = msgRole;
@@ -129,7 +127,7 @@ uint32_t ChatBox::putMessage(const char* msg, uint32_t msgLength, Roles msgRole)
   return _msgCount;
 }
 
-DynamicJsonDocument ChatBox::generateJsonRequestBody() {
+DynamicJsonDocument ChatGPTuino::generateJsonRequestBody() {
 
   DynamicJsonDocument doc(_DYNAMIC_JSON_DOC_SIZE);
 
@@ -157,7 +155,7 @@ DynamicJsonDocument ChatBox::generateJsonRequestBody() {
   return doc;
 }
 
-getResponseCodes ChatBox::getResponse() {
+getResponseCodes ChatGPTuino::getResponse() {
 
   // Create a secure wifi client
   WiFiClientSecure client;
@@ -219,9 +217,12 @@ getResponseCodes ChatBox::getResponse() {
  *
  * returns: void
  */
-void ChatBox::postRequest(DynamicJsonDocument* pJsonRequestBody, WiFiClientSecure* pClient) {
+void ChatGPTuino::postRequest(DynamicJsonDocument* pJsonRequestBody, WiFiClientSecure* pClient) {
 
+#ifdef VERBOSE_PRINTS
   Serial.println("    | Making POST Request to OpenAI");
+#endif
+
   // Make request
   pClient->print("POST ");
   pClient->print(OPEN_AI_END_POINT);
@@ -241,7 +242,9 @@ void ChatBox::postRequest(DynamicJsonDocument* pJsonRequestBody, WiFiClientSecur
   serializeJson(*pJsonRequestBody, *pClient);  // Serialize the JSON doc and append to client object
   pClient->println();                          // Send the body to the server
 
+#ifdef VERBOSE_PRINTS
   Serial.println("    | JSON sent");
+#endif
 }
 
 /* Function:  waitForServerResponse
@@ -253,7 +256,7 @@ void ChatBox::postRequest(DynamicJsonDocument* pJsonRequestBody, WiFiClientSecur
  *
  * returns: bool - 0 for timeout, 1 for success
  */
-bool ChatBox::waitForServerResponse(WiFiClientSecure* pClient) {
+bool ChatGPTuino::waitForServerResponse(WiFiClientSecure* pClient) {
 
   bool responseSuccess = true;
   long startWaitTime = millis();         // Measure how long it takes
@@ -290,9 +293,12 @@ bool ChatBox::waitForServerResponse(WiFiClientSecure* pClient) {
  *
  * returns: bool - 0 for failure to extract JSON, 1 for success
  */
-bool ChatBox::putResponseInMsgArray(WiFiClientSecure* pClient) {
+bool ChatGPTuino::putResponseInMsgArray(WiFiClientSecure* pClient) {
 
+#ifdef VERBOSE_PRINTS
   Serial.println("    | putResponseInMsgArray");
+#endif
+
   pClient->find("\r\n\r\n");  // This search gets us to the body section of the http response
 
   /* Create a filter for the returning JSON 
@@ -320,13 +326,16 @@ bool ChatBox::putResponseInMsgArray(WiFiClientSecure* pClient) {
     return 0;
   }
 
-
   const char* newMsg = jsonResponse["choices"][0]["message"]["content"] | "...";
+
+#ifdef VERBOSE_PRINTS
   Serial.println(newMsg);
   Serial.print("measureJSON ");
   Serial.print(measureJson(jsonResponse["choices"][0]["message"]["content"]));
   Serial.print("  | strlng ");
   Serial.println(strlen(jsonResponse["choices"][0]["message"]["content"]));
+#endif
+
   putMessage(newMsg, measureJson(jsonResponse["choices"][0]["message"]["content"]) - 2, assistant);  // The -2 is adjusting for the ""
 
   return 1;
