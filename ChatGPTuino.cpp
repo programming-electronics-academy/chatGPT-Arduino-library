@@ -191,7 +191,7 @@ getResponseCodes ChatGPTuino::getResponse() {
       bool responseSaved = putResponseInMsgArray(&client);
 
     } else {
-      // Server did not responsd to POST request, go through loop and try again.
+      // Server did not respond to POST request, go through loop and try again.
       Serial.println("    | Server did not respond. Trying again.");
       return serverDidNotRespond;
     }
@@ -286,7 +286,7 @@ bool ChatGPTuino::waitForServerResponse(WiFiClientSecure* pClient) {
 
 /* Function:  putResponseInMsgArray
  * -------------------------
- * Applies filter to JSON reponse and saves response to messages array. 
+ * Applies filter to JSON response and saves response to messages array. 
  *
  * WiFiClientSecure * pClient: The wifi object handling the response
  * int numMessages:  Number of messages in the messages array
@@ -309,11 +309,13 @@ bool ChatGPTuino::putResponseInMsgArray(WiFiClientSecure* pClient) {
   filter_choices_0_message["content"] = true;
 
   // Deserialize the JSON
-  // TODO - I want capacity to be determined by the tokens the end user initilazes with.
-  // https://arduinojson.org/v6/how-to/determine-the-capacity-of-the-jsondocument/#technique-2-compute-the-capacity-with-macros
-  const int capacity = 2000;
-  StaticJsonDocument<capacity> jsonResponse;
+#ifdef VERBOSE_PRINTS
+  Serial.println(ESP.getMaxAllocHeap());
+#endif
+
+  DynamicJsonDocument jsonResponse(ESP.getMaxAllocHeap() - 1024);
   DeserializationError error = deserializeJson(jsonResponse, *pClient, DeserializationOption::Filter(filter));
+  jsonResponse.shrinkToFit();
 
   // If deserialization fails, exit immediately and try again.
   if (error) {
