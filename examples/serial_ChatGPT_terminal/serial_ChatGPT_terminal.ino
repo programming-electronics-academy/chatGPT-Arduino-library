@@ -49,7 +49,7 @@ void loop() {
 
 
   if (newMessage) {
-
+    Serial.println("...");                              // spacer
     Serial.println(userMessage);                        // Display the user message
     chat.putMessage(userMessage, strlen(userMessage));  // Add user message to messages array
     chat.getResponse();                                 // Get response from ChatGPT
@@ -57,14 +57,17 @@ void loop() {
     boolean startNewLine = false;
     for (int i = 0; i < chat.getLastMessageLength(); i++) {
 
-      Serial.print(chat.getLastMessageContent()[i]);  // Print Response char by char
-      
+      // Only display ASCII Char Codes
+      if (chat.getLastMessageContent()[i] < 126) {
+        Serial.print(chat.getLastMessageContent()[i]);  // Print Response char by char
+      }
+
       // If you come get to the of a line, set newline flag
       if (i % SERIAL_MONITOR_LINE_LENGTH == 0 && i != 0) {
         startNewLine = true;
       }
 
-      if(chat.getLastMessageContent()[i] == '\n'){
+      if (chat.getLastMessageContent()[i] == '\n') {
         startNewLine = false;
       }
 
@@ -76,9 +79,8 @@ void loop() {
 
       // Delay between words
       if (chat.getLastMessageContent()[i] == ' ') {
-        delay(100);
+        delay(10);
       }
-
     }
     Serial.println("...");  // spacer
     newMessage = false;

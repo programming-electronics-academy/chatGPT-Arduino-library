@@ -111,8 +111,11 @@ uint32_t ChatGPTuino::getLastMessageLength() const {
 
 void ChatGPTuino::safe_strncpy(char* dest, size_t destSize, const char* src) {
   size_t srcSize = strlen(src);  // crash here if not nul-terminated
+  
   if (srcSize > destSize - 1)
+  {
     srcSize = destSize - 1;
+  }
   memmove(dest, src, srcSize);  // memmove is safe if dest and src overlap
   dest[srcSize] = '\0';
 }
@@ -338,7 +341,8 @@ bool ChatGPTuino::putResponseInMsgArray(WiFiClientSecure* pClient) {
   Serial.println(strlen(jsonResponse["choices"][0]["message"]["content"]));
 #endif
 
-  putMessage(newMsg, measureJson(jsonResponse["choices"][0]["message"]["content"]) - 2, assistant);  // The -2 is adjusting for the ""
+  // putMessage(newMsg, measureJson(jsonResponse["choices"][0]["message"]["content"]) - 2, assistant);  // The -2 is adjusting for the ""
+  putMessage(newMsg, strlen(jsonResponse["choices"][0]["message"]["content"]), assistant);  // The -2 is adjusting for the ""
 
   return 1;
 }
