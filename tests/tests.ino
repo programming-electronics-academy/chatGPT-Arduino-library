@@ -1,7 +1,7 @@
 #include <AUnit.h>    // Testing
 #include <WiFi.h>     // ESP32
 #include <ChatGPTuino.h>
-#include <secrets.h>  // Network name, password, and private API key
+#include "credentials.h"  // Network name, password, and private API key
 
 #define TESTING_ON 1
 
