@@ -1,7 +1,7 @@
 #ifndef chatGPTuino_h
 #define chatGPTuino_h
 
-#include <sys/_stdint.h>
+// #include <sys/_stdint.h>
 #include <ArduinoJson.h>       // Handle JSON formatting for API calls
 #include <WiFiClientSecure.h>  // ESP32
 
@@ -30,7 +30,7 @@
 #define OPEN_AI_END_POINT "https://api.openai.com/v1/chat/completions"
 #define OPEN_AI_SERVER "api.openai.com"
 //OpenAI API endpoint root certificate used to ensure response is actually from OpenAPI
-// TODO - Verify that the certificate matters!  Have a check that verifys the connection is secure.
+// TODO - Verify that the certificate matters!  Have a check that verifies the connection is secure.
 #define ROOT_CA_CERT "-----BEGIN CERTIFICATE-----\n" \
                      "MIIDdzCCAl+gAwIBAgIEAgAAuTANBgkqhkiG9w0BAQUFADBaMQswCQYDVQQGEwJJ\n" \
                      "RTESMBAGA1UEChMJQmFsdGltb3JlMRMwEQYDVQQLEwpDeWJlclRydXN0MSIwIAYD\n" \

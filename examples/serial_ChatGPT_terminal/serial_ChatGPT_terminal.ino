@@ -1,14 +1,15 @@
 #include <ChatGPTuino.h>
-#include <WiFi.h>     // ESP32
-#include <secrets.h>  // Network name, password, and private API key
+#include <WiFi.h>         // ESP32
+#include "credentials.h"  // Network name, password, and private API key
 
-const int TOKENS = 400;
+// A quick primer on the chatGPT API https://www.programmingelectronics.com/chatgpt-api/
+const int TOKENS = 400; // How lengthy a response you want, every token is about 3/4 a word
 const int CHARS_IN_TOKEN = 6;
 const int MAX_CHARS = TOKENS * CHARS_IN_TOKEN;
 const int NUM_MESSAGES = 10;
 const int SERIAL_MONITOR_LINE_LENGTH = 40;
 
-ChatGPTuino chat{ TOKENS, NUM_MESSAGES };  // Create an array with 20 message slots.  50 Tokens is max response length (about 38 words)
+ChatGPTuino chat{ TOKENS, NUM_MESSAGES }; // Will store and send your most recent messages (up to NUM_MESSAGES)
 const char *model = "gpt-3.5-turbo";       // OpenAI Model being used
 
 void setup() {
@@ -79,7 +80,7 @@ void loop() {
 
       // Delay between words
       if (chat.getLastMessageContent()[i] == ' ') {
-        delay(10);
+        delay(50);
       }
     }
     Serial.println("...");  // spacer

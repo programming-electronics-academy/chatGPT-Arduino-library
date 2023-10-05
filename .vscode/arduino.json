@@ -1,0 +1,4 @@
+{
+    "port": "/dev/tty.usbserial-0001",
+    "board": "esp32:esp32:esp32da"
+}

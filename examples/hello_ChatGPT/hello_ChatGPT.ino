@@ -1,8 +1,12 @@
 #include <ChatGPTuino.h>
 #include <WiFi.h>     // ESP32
-#include <secrets.h>  // Network name, password, and private API key
+#include "credentials.h"  // Network name, password, and private API key
 
-ChatGPTuino chat{ 50, 20 }; // Create an array with 20 message slots.  50 Tokens is max response length (about 38 words)
+// A quick primer on the chatGPT API https://www.programmingelectronics.com/chatgpt-api/
+const int TOKENS = 100; // How lengthy a response you want, every token is about 3/4 a word
+const int NUM_MESSAGES = 20; 
+
+ChatGPTuino chat{ TOKENS, NUM_MESSAGES }; // Will store and send your most recent messages (up to NUM_MESSAGES)
 const char *model = "gpt-3.5-turbo";  // OpenAI Model being used
 
 void setup() {
