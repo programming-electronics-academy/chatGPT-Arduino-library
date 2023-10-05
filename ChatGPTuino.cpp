@@ -337,11 +337,10 @@ bool ChatGPTuino::putResponseInMsgArray(WiFiClientSecure* pClient) {
   Serial.println(newMsg);
   Serial.print("measureJSON ");
   Serial.print(measureJson(jsonResponse["choices"][0]["message"]["content"]));
-  Serial.print("  | strlng ");
+  Serial.print("  | strlen ");
   Serial.println(strlen(jsonResponse["choices"][0]["message"]["content"]));
 #endif
 
-  // putMessage(newMsg, measureJson(jsonResponse["choices"][0]["message"]["content"]) - 2, assistant);  // The -2 is adjusting for the ""
   putMessage(newMsg, strlen(jsonResponse["choices"][0]["message"]["content"]), assistant);  // The -2 is adjusting for the ""
 
   return 1;
