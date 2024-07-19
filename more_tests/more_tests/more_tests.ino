@@ -1,6 +1,5 @@
-#include <WiFi.h>   // ESP32
-
 #include <AUnit.h>  // Testing
+#include <WiFi.h>   // ESP32
 #include <ChatGPTuino.h>
 // #include "credentials.h"  // Network name, password, and private API key
 #include "secrets.h"  // Network name, password, and private API key
@@ -9,8 +8,8 @@
 
 /* Assert( expected value (Known Value), actual value(value under test)) */
 
-// const char *test_key = "sk-VT65uEtK8cUfB1KuEx0QT3BlbkFJHnIvsADF3rJw5-XXXXXX";
-// const char *model = "gpt-4o";
+const char *test_key = "sk-VT65uEtK8cUfB1KuEx0QT3BlbkFJHnIvsADF3rJw5-XXXXXX";
+const char *model = "gpt-4o";
 
 #if TESTING_ON
 // test(ChatBox_itializes_with_valid_values) {
