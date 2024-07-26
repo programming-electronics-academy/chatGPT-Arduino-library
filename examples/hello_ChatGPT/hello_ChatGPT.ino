@@ -7,7 +7,7 @@ const int TOKENS = 100; // How lengthy a response you want, every token is about
 const int NUM_MESSAGES = 20; 
 
 ChatGPTuino chat{ TOKENS, NUM_MESSAGES }; // Will store and send your most recent messages (up to NUM_MESSAGES)
-const char *model = "gpt-3.5-turbo";  // OpenAI Model being used
+const char *model = "gpt-4o";  // OpenAI Model being used
 
 void setup() {
 

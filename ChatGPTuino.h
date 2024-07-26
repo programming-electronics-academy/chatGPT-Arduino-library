@@ -2,11 +2,11 @@
 #define chatGPTuino_h
 
 // #include <sys/_stdint.h>
-#include <ArduinoJson.h>       // Handle JSON formatting for API calls
-#include <WiFiClientSecure.h>  // ESP32
+#include <ArduinoJson.h>      // Handle JSON formatting for API calls
+#include <WiFiClientSecure.h> // ESP32
 
 #define MIN_TOKENS 50
-#define MAX_TOKENS 2000  // Used for sizing JSON response
+#define MAX_TOKENS 2000 // Used for sizing JSON response
 #define MIN_MESSAGES 5
 #define CHARS_PER_TOKEN 6
 
@@ -21,17 +21,17 @@
 
 #define JSON_MEMORY_SLACK 1000
 
-#define PORT 443                               // The port you'll connect to on the server - this is standard.
-#define SERVER_RESPONSE_WAIT_TIME (15 * 1000)  // How long to wait for a server response (seconds * 1000)
+#define PORT 443                              // The port you'll connect to on the server - this is standard.
+#define SERVER_RESPONSE_WAIT_TIME (15 * 1000) // How long to wait for a server response (seconds * 1000)
 
 // #define DEBUG_SERVER_RESPONSE_BREAKING
 // #define VERBOSE_PRINTS
 
 #define OPEN_AI_END_POINT "https://api.openai.com/v1/chat/completions"
 #define OPEN_AI_SERVER "api.openai.com"
-//OpenAI API endpoint root certificate used to ensure response is actually from OpenAPI
-// TODO - Verify that the certificate matters!  Have a check that verifies the connection is secure.
-#define ROOT_CA_CERT "-----BEGIN CERTIFICATE-----\n" \
+// OpenAI API endpoint root certificate used to ensure response is actually from OpenAPI
+//  TODO - Verify that the certificate matters!  Have a check that verifies the connection is secure.
+#define ROOT_CA_CERT "-----BEGIN CERTIFICATE-----\n"                                      \
                      "MIIDdzCCAl+gAwIBAgIEAgAAuTANBgkqhkiG9w0BAQUFADBaMQswCQYDVQQGEwJJ\n" \
                      "RTESMBAGA1UEChMJQmFsdGltb3JlMRMwEQYDVQQLEwpDeWJlclRydXN0MSIwIAYD\n" \
                      "VQQDExlCYWx0aW1vcmUgQ3liZXJUcnVzdCBSb290MB4XDTAwMDUxMjE4NDYwMFoX\n" \
@@ -50,32 +50,44 @@
                      "jkzSswF07r51XgdIGn9w/xZchMB5hbgF/X++ZRGjD8ACtPhSNzkE1akxehi/oCr0\n" \
                      "Epn3o0WC4zxe9Z2etciefC7IpJ5OCBRLbf1wbWsaY71k5h+3zvDyny67G7fyUIhz\n" \
                      "ksLi4xaNmjICq44Y3ekQEe5+NauQrz4wlHrQMz2nZQ/1/I6eYs9HRCwBXbsdtTLS\n" \
-                     "R9I4LtD+gdwyah617jzV/OeBHRnDJELqYzmp\n" \
+                     "R9I4LtD+gdwyah617jzV/OeBHRnDJELqYzmp\n"                             \
                      "-----END CERTIFICATE-----\n"
 
-enum Roles { sys,
-             user,
-             assistant,
-             function,
-             none };
-
-const char RoleNames[5][10] = { "system",
-                                "user",
-                                "assistant",
-                                "function",
-                                "none" };
-
-
-enum getResponseCodes { getResponseSuccess,
-                        couldNotConnectToServer,
-                        serverDidNotRespond
+enum Roles
+{
+  Sys,
+  User,
+  Assistant,
+  Function,
+  None
 };
 
-class ChatGPTuino {
+const char RoleNames[5][10] = {"system",
+                               "user",
+                               "assistant",
+                               "function",
+                               "none"};
 
-  struct Message {
+enum GetResponseCodes
+{
+  GetResponseSuccess,
+  CouldNotConnectToServer,
+  ServerDidNotRespond
+};
+
+enum SysMessageModes
+{
+  Insert,
+  Default
+};
+
+class ChatGPTuino
+{
+
+  struct Message
+  {
     enum Roles role;
-    char* content;
+    char *content;
     uint32_t length;
   };
 
@@ -85,70 +97,79 @@ public:
   ChatGPTuino(uint32_t maxTokens, uint16_t numMsgs);
   ~ChatGPTuino();
 
-  bool init(const char* key, const char* model);
+  bool init(const char *key, const char *model);
 
   // Getters
-  uint32_t maxTokens() const {
+  uint32_t maxTokens() const
+  {
     return _maxTokens;
   }
 
-  uint16_t numMessages() const {
+  uint16_t numMessages() const
+  {
     return _maxMsgs;
   }
 
-  uint16_t msgCount() const {
+  uint16_t msgCount() const
+  {
     return _msgCount;
   }
 
-  uint32_t MAX_MESSAGE_LENGTH() const {
+  uint32_t MAX_MESSAGE_LENGTH() const
+  {
     return _MAX_MESSAGE_LENGTH;
   }
 
-  uint32_t DYNAMIC_JSON_DOC_SIZE() const {
+  uint32_t DYNAMIC_JSON_DOC_SIZE() const
+  {
     return _DYNAMIC_JSON_DOC_SIZE;
   }
 
-  char* getLastMessageContent() const;
+  char *getLastMessageContent() const;
 
   uint32_t getLastMessageLength() const;
 
   Roles getLastMessageRole() const;
 
   // Dev
-  char* contentPtrs(uint16_t i) const {
+  char *contentPtrs(uint16_t i) const
+  {
     return _messages[i].content;
   };
 
-  char* model() const {
+  char *model() const
+  {
     return _model;
   };
 
-  Roles* rolePtrs(uint16_t i) const {
+  Roles *rolePtrs(uint16_t i) const
+  {
     return &_messages[i].role;
   };
 
   // Setters
-  uint32_t putMessage(const char* msg, uint32_t msgLength, Roles msgRole = user);
+  uint32_t putMessage(const char *msg, uint32_t msgLength, Roles msgRole = User);
+  void systemMessageMode(SysMessageModes mode, char *sysMsg = nullptr);
 
   // Functions
-  DynamicJsonDocument generateJsonRequestBody();
-  getResponseCodes getResponse();
-  void postRequest(DynamicJsonDocument* pJsonRequestBody, WiFiClientSecure* pClient);
-  bool waitForServerResponse(WiFiClientSecure* pClient);
-  bool putResponseInMsgArray(WiFiClientSecure* pClient);
-  void safe_strncpy(char* dest, size_t destSize, const char* src);
-
+  JsonDocument generateJsonRequestBody();
+  GetResponseCodes getResponse();
+  void postRequest(JsonDocument *pJsonRequestBody, WiFiClientSecure *pClient);
+  bool waitForServerResponse(WiFiClientSecure *pClient);
+  bool putResponseInMsgArray(WiFiClientSecure *pClient);
+  void safe_strncpy(char *dest, size_t destSize, const char *src);
 
 private:
   uint32_t _maxTokens;
   uint16_t _maxMsgs;
   uint16_t _msgCount;
   uint32_t _MAX_MESSAGE_LENGTH;
-  uint32_t _DYNAMIC_JSON_DOC_SIZE;
-  char* _secret_key;
-  char* _model;
-  Message* _messages;
+  uint32_t _DYNAMIC_JSON_DOC_SIZE; // NOTE: I BELIEVE THIS WILL BE DEPRECATED
+  char *_secret_key;
+  char *_model;
+  char *_sysMessageContent;
+  SysMessageModes _sysMsgMode;
+  Message *_messages;
 };
-
 
 #endif // ChatGPTuino.h
