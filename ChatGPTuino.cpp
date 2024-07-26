@@ -230,6 +230,7 @@ GetResponseCodes ChatGPTuino::getResponse()
 {
 
   // Create a secure wifi client
+  // WiFiClient client;
   WiFiClientSecure client;
   client.setCACert(ROOT_CA_CERT);
 
@@ -305,7 +306,7 @@ void ChatGPTuino::postRequest(JsonDocument *pJsonRequestBody, WiFiClientSecure *
   // Make request
   pClient->print("POST ");
   pClient->print(OPEN_AI_END_POINT);
-  pClient->println(" HTTP/1.1");
+  pClient->println(" HTTP/1.0"); // Can not seem to configure this for 1.1
   // Send headers
   pClient->print("Host: ");
   pClient->println(OPEN_AI_SERVER);
@@ -396,6 +397,7 @@ bool ChatGPTuino::putResponseInMsgArray(WiFiClientSecure *pClient)
 
   // Deserialize the JSON
 #ifdef VERBOSE_PRINTS
+  Serial.print("    | putResponseInMsgArray | ESP.getMaxAllocHeap -> ");
   Serial.println(ESP.getMaxAllocHeap());
 #endif
 
@@ -403,7 +405,7 @@ bool ChatGPTuino::putResponseInMsgArray(WiFiClientSecure *pClient)
   JsonDocument jsonResponse;
   DeserializationError error = deserializeJson(jsonResponse, *pClient, DeserializationOption::Filter(filter));
   jsonResponse.shrinkToFit();
-  Serial.println("putResponseInMsgArray - deserialize success");
+  Serial.println("    | putResponseInMsgArray | deserialize success");
 
   // If deserialization fails, exit immediately and try again.
   if (error)
@@ -411,7 +413,7 @@ bool ChatGPTuino::putResponseInMsgArray(WiFiClientSecure *pClient)
 
     pClient->stop();
 
-    Serial.print("    | deserializeJson() failed->");
+    Serial.print("    | putResponseInMsgArray | deserializeJson() failed->");
     Serial.println(error.c_str());
 
     return 0;
@@ -420,14 +422,15 @@ bool ChatGPTuino::putResponseInMsgArray(WiFiClientSecure *pClient)
   const char *newMsg = jsonResponse["choices"][0]["message"]["content"] | "...";
 
 #ifdef VERBOSE_PRINTS
+  Serial.print("    | putResponseInMsgArray | newMsg -> ");
   Serial.println(newMsg);
-  Serial.print("measureJSON ");
+  Serial.print("    | putResponseInMsgArray | measureJSON ");
   Serial.print(measureJson(jsonResponse["choices"][0]["message"]["content"]));
   Serial.print("  | strlen ");
   Serial.println(strlen(jsonResponse["choices"][0]["message"]["content"]));
 #endif
 
   putMessage(newMsg, strlen(jsonResponse["choices"][0]["message"]["content"]), Assistant);
-  Serial.println("putResponseInMsgArray - putMessage success");
+  Serial.println("    | putResponseInMsgArray | putMessage success");
   return 1;
 }

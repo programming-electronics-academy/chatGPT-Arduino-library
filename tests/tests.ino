@@ -1,16 +1,15 @@
 #include <WiFi.h>   // ESP32
-
 #include <AUnit.h>  // Testing
 #include <ChatGPTuino.h>
 // #include "credentials.h"  // Network name, password, and private API key
+
 #include "secrets.h"  // Network name, password, and private API key
 
 #define TESTING_ON 1
 
-/* Assert( expected value (Known Value), actual value(value under test)) */
-
-// const char *test_key = "sk-VT65uEtK8cUfB1KuEx0QT3BlbkFJHnIvsADF3rJw5-XXXXXX";
 const char *model = "gpt-4o";
+
+/* Assert( expected value (Known Value), actual value(value under test)) */
 
 #if TESTING_ON
 test(ChatBox_itializes_with_valid_values) {
@@ -97,27 +96,27 @@ test(generateJsonRequestBody_returns_valid_Json) {
   assertEqual((const char *)chat.getLastMessageContent(), (const char *)testDoc["messages"][1]["content"]);
 }
 
-// test(getResponse_puts_response_in_messages) {
-//   ChatGPTuino chat{ 10, 4 };
-//   chat.init(key, model);
+test(getResponse_puts_response_in_messages) {
+  ChatGPTuino chat{ 10, 4 };
+  chat.init(key, model);
 
-//   char *testMessage = "Please respond with the only the word TEST";
-//   chat.putMessage(testMessage, strlen(testMessage), Roles::User);
-//   chat.getResponse();
+  char *testMessage = "Please respond with the only the word TEST";
+  chat.putMessage(testMessage, strlen(testMessage), Roles::User);
+  chat.getResponse();
 
-//   assertEqual("TEST", (const char *)chat.getLastMessageContent());
-// }
+  assertEqual("TEST", (const char *)chat.getLastMessageContent());
+}
 
-// test(getResponse_puts_response_length_in_messages) {
-//   ChatGPTuino chat{ 10, 4 };
-//   chat.init(key, model);
+test(getResponse_puts_response_length_in_messages) {
+  ChatGPTuino chat{ 10, 4 };
+  chat.init(key, model);
 
-//   char *testMessage = "Please respond with the only the word TEST";
-//   chat.putMessage(testMessage, strlen(testMessage), Roles::User);
-//   chat.getResponse();
+  char *testMessage = "Please respond with the only the word TEST";
+  chat.putMessage(testMessage, strlen(testMessage), Roles::User);
+  chat.getResponse();
 
-//   assertEqual((long)4, (long)chat.getLastMessageLength());
-// }
+  assertEqual((long)4, (long)chat.getLastMessageLength());
+}
 
 // test(init_with_sys_msg_para_inserts_sys_msg) {
 //   ChatGPTuino chat{ 50, 4 };
