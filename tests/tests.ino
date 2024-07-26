@@ -10,20 +10,20 @@
 /* Assert( expected value (Known Value), actual value(value under test)) */
 
 // const char *test_key = "sk-VT65uEtK8cUfB1KuEx0QT3BlbkFJHnIvsADF3rJw5-XXXXXX";
-// const char *model = "gpt-4o";
+const char *model = "gpt-4o";
 
 #if TESTING_ON
-// test(ChatBox_itializes_with_valid_values) {
+test(ChatBox_itializes_with_valid_values) {
 
-//   ChatGPTuino chat{ 0, 0 };
-//   chat.init(test_key, model);
-//   long testDocSize = 3056;  //Based on Arduino JSON 6 Assistant
-//   assertEqual((const char *)model, (const char *)chat.model());
-//   assertEqual((long)chat.maxTokens(), (long)MIN_TOKENS);
-//   assertEqual(chat.numMessages(), MIN_MESSAGES);
-//   assertEqual((long)(CHARS_PER_TOKEN * chat.maxTokens()), (long)chat.MAX_MESSAGE_LENGTH());
-//   assertEqual(testDocSize, (long)chat.DYNAMIC_JSON_DOC_SIZE());
-// }
+  ChatGPTuino chat{ 0, 0 };
+  chat.init(test_key, model);
+  long testDocSize = 3056;  //Based on Arduino JSON 6 Assistant
+  assertEqual((const char *)model, (const char *)chat.model());
+  assertEqual((long)chat.maxTokens(), (long)MIN_TOKENS);
+  assertEqual(chat.numMessages(), MIN_MESSAGES);
+  assertEqual((long)(CHARS_PER_TOKEN * chat.maxTokens()), (long)chat.MAX_MESSAGE_LENGTH());
+  assertEqual(testDocSize, (long)chat.DYNAMIC_JSON_DOC_SIZE());
+}
 
 // test(init_allocates_space_for_message_contexts) {
 
