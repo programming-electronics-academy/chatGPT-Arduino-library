@@ -120,9 +120,9 @@ public:
     return _MAX_MESSAGE_LENGTH;
   }
 
-  uint32_t DYNAMIC_JSON_DOC_SIZE() const
+  uint32_t JSON_DOC_SIZE() const
   {
-    return _DYNAMIC_JSON_DOC_SIZE;
+    return _JSON_DOC_SIZE;
   }
 
   char *getLastMessageContent() const;
@@ -164,7 +164,7 @@ private:
   uint16_t _maxMsgs;
   uint16_t _msgCount;
   uint32_t _MAX_MESSAGE_LENGTH;
-  uint32_t _DYNAMIC_JSON_DOC_SIZE; // NOTE: I BELIEVE THIS WILL BE DEPRECATED
+  uint32_t _JSON_DOC_SIZE; // NOTE: I BELIEVE THIS WILL BE DEPRECATED
   char *_secret_key;
   char *_model;
   char *_sysMessageContent;

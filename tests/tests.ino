@@ -22,7 +22,7 @@ test(ChatBox_itializes_with_valid_values) {
   assertEqual((long)chat.maxTokens(), (long)MIN_TOKENS);
   assertEqual(chat.numMessages(), MIN_MESSAGES);
   assertEqual((long)(CHARS_PER_TOKEN * chat.maxTokens()), (long)chat.MAX_MESSAGE_LENGTH());
-  assertEqual(testDocSize, (long)chat.DYNAMIC_JSON_DOC_SIZE());
+  assertEqual(testDocSize, (long)chat.JSON_DOC_SIZE());
 }
 
 // test(init_allocates_space_for_message_contexts) {

@@ -7,7 +7,7 @@ ChatGPTuino::ChatGPTuino(uint32_t maxTokens = MIN_TOKENS, const uint16_t maxMsgs
       _msgCount{0},
       _sysMsgMode{Default},
       _MAX_MESSAGE_LENGTH{_maxTokens * CHARS_PER_TOKEN},
-      _DYNAMIC_JSON_DOC_SIZE{
+      _JSON_DOC_SIZE{
           (JSON_DATA_STRUCTURE_MEMORY_BASE + (_maxMsgs * JSON_DATA_STRUCTURE_MEMORY_PER_MSG)) + (JSON_KEY_STRING_MEMORY_BASE + ((_MAX_MESSAGE_LENGTH + JSON_VALUE_STRING_MEMORY_PER_MSG) * _maxMsgs)) + JSON_MEMORY_SLACK} {};
 
 // Destructor
