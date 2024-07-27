@@ -106,14 +106,25 @@ bool ChatGPTuino::init(const char *key, const char *model)
 // Set system message mode and optionally system message
 void ChatGPTuino::systemMessageMode(SysMessageModes mode, char *sysMsg)
 {
+
+#ifdef VERBOSE_PRINTS
+  Serial.println("    | systemMessageMode | START");
+#endif
+
   _sysMsgMode = mode;
 
   if (sysMsg)
   {
     safe_strncpy(_sysMessageContent, _MAX_MESSAGE_LENGTH, sysMsg);
-    Serial.print("_sysMessageContent ->");
+#ifdef VERBOSE_PRINTS
+    Serial.println("    | systemMessageMode | _sysMessageContent ->");
     Serial.println(_sysMessageContent);
+#endif
   }
+
+#ifdef VERBOSE_PRINTS
+  Serial.println("    | systemMessageMode | END");
+#endif
 }
 
 char *ChatGPTuino::getLastMessageContent() const
@@ -389,7 +400,7 @@ bool ChatGPTuino::putResponseInMsgArray(WiFiClientSecure *pClient)
         https://arduinojson.org/news/2020/03/22/version-6-15-0/ */
   // StaticJsonDocument<500> filter;  // JSON 7 UPDATE
   JsonDocument filter;
-  //JsonObject filter_choices_0_message = filter["choices"][0].createNestedObject("message"); // JSON 7 UPDATE
+  // JsonObject filter_choices_0_message = filter["choices"][0].createNestedObject("message"); // JSON 7 UPDATE
   JsonObject filter_choices_0_message = filter["choices"][0]["message"].to<JsonObject>();
 
   filter_choices_0_message["role"] = true;
@@ -401,7 +412,7 @@ bool ChatGPTuino::putResponseInMsgArray(WiFiClientSecure *pClient)
   Serial.println(ESP.getMaxAllocHeap());
 #endif
 
-  //JsonDocument jsonResponse(ESP.getMaxAllocHeap() - 1024);
+  // JsonDocument jsonResponse(ESP.getMaxAllocHeap() - 1024);
   JsonDocument jsonResponse;
   DeserializationError error = deserializeJson(jsonResponse, *pClient, DeserializationOption::Filter(filter));
   jsonResponse.shrinkToFit();
