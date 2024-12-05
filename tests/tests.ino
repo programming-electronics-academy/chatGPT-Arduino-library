@@ -1,15 +1,15 @@
 #include <WiFi.h>   // ESP32
-
 #include <AUnit.h>  // Testing
 #include <ChatGPTuino.h>
-// #include "credentials.h"  // Network name, password, and private API key
+
 #include "secrets.h"  // Network name, password, and private API key
 
 #define TESTING_ON 1
 
-/* Assert( expected value (Known Value), actual value(value under test)) */
+/***** NOTE TO SELF ********
+    Assert( expected value (Known Value), actual value(value under test)) 
+***************************/
 
-// const char *test_key = "sk-VT65uEtK8cUfB1KuEx0QT3BlbkFJHnIvsADF3rJw5-XXXXXX";
 const char *model = "gpt-4o";
 
 #if TESTING_ON
