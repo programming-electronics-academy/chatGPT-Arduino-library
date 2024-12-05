@@ -2,6 +2,7 @@
 #include <AUnit.h>  // Testing
 #include <ChatGPTuino.h>
 
+#include "secrets.h"
 
 #define TESTING_ON 1
 
@@ -24,21 +25,21 @@ test(ChatBox_itializes_with_valid_values) {
   assertEqual(testDocSize, (long)chat.DYNAMIC_JSON_DOC_SIZE());
 }
 
-// test(init_allocates_space_for_message_contexts) {
+test(init_allocates_space_for_message_contexts) {
 
-//   ChatGPTuino chat{ 10, 5 };
-//   chat.init(test_key, model);
+  ChatGPTuino chat{ 10, 5 };
+  chat.init(test_key, model);
 
-//   for (int i = 0; i < chat.numMessages() - 1; i++) {
+  for (int i = 0; i < chat.numMessages() - 1; i++) {
 
-//     long contentPtrA = (long)chat.contentPtrs(i);
-//     long contentPtrB = (long)chat.contentPtrs(i + 1);
-//     long actual = contentPtrB - contentPtrA;
-//     long expected = chat.MAX_MESSAGE_LENGTH() * sizeof(char);
+    long contentPtrA = (long)chat.contentPtrs(i);
+    long contentPtrB = (long)chat.contentPtrs(i + 1);
+    long actual = contentPtrB - contentPtrA;
+    long expected = chat.MAX_MESSAGE_LENGTH() * sizeof(char);
 
-//     assertEqual(expected, actual);
-//   }
-// }
+    assertEqual(expected, actual);
+  }
+}
 
 // test(putMessage_puts_message_in_next_available_slot) {
 
