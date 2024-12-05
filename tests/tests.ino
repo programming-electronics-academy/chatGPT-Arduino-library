@@ -2,7 +2,6 @@
 #include <AUnit.h>  // Testing
 #include <ChatGPTuino.h>
 
-#include "secrets.h"  // Network name, password, and private API key
 
 #define TESTING_ON 1
 
