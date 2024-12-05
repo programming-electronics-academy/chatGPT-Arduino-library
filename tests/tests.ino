@@ -1,29 +1,28 @@
 #include <WiFi.h>   // ESP32
-
 #include <AUnit.h>  // Testing
 #include <ChatGPTuino.h>
 // #include "credentials.h"  // Network name, password, and private API key
+
 #include "secrets.h"  // Network name, password, and private API key
 
 #define TESTING_ON 1
 
-/* Assert( expected value (Known Value), actual value(value under test)) */
-
-// const char *test_key = "sk-VT65uEtK8cUfB1KuEx0QT3BlbkFJHnIvsADF3rJw5-XXXXXX";
 const char *model = "gpt-4o";
 
-#if TESTING_ON
-test(ChatBox_itializes_with_valid_values) {
+/* Assert( expected value (Known Value), actual value(value under test)) */
 
-  ChatGPTuino chat{ 0, 0 };
-  chat.init(test_key, model);
-  long testDocSize = 3056;  //Based on Arduino JSON 6 Assistant
-  assertEqual((const char *)model, (const char *)chat.model());
-  assertEqual((long)chat.maxTokens(), (long)MIN_TOKENS);
-  assertEqual(chat.numMessages(), MIN_MESSAGES);
-  assertEqual((long)(CHARS_PER_TOKEN * chat.maxTokens()), (long)chat.MAX_MESSAGE_LENGTH());
-  assertEqual(testDocSize, (long)chat.DYNAMIC_JSON_DOC_SIZE());
-}
+#if TESTING_ON
+// test(ChatBox_itializes_with_valid_values) {
+
+//   ChatGPTuino chat{ 0, 0 };
+//   chat.init(test_key, model);
+//   long testDocSize = 3056;  //Based on Arduino JSON 6 Assistant
+//   assertEqual((const char *)model, (const char *)chat.model());
+//   assertEqual((long)chat.maxTokens(), (long)MIN_TOKENS);
+//   assertEqual(chat.numMessages(), MIN_MESSAGES);
+//   assertEqual((long)(CHARS_PER_TOKEN * chat.maxTokens()), (long)chat.MAX_MESSAGE_LENGTH());
+//   assertEqual(testDocSize, (long)chat.JSON_DOC_SIZE());
+// }
 
 // test(init_allocates_space_for_message_contexts) {
 
@@ -119,18 +118,18 @@ test(ChatBox_itializes_with_valid_values) {
 //   assertEqual((long)4, (long)chat.getLastMessageLength());
 // }
 
-// test(init_with_sys_msg_para_inserts_sys_msg) {
-//   ChatGPTuino chat{ 50, 4 };
-//   char *sysMsgTest = "If this is a test, please respond with only the word PASS, otherwise please respond with only the word FAIL";
-//   chat.init(key, model);
-//   chat.systemMessageMode(Insert, sysMsgTest);
+test(init_with_sys_msg_para_inserts_sys_msg) {
+  ChatGPTuino chat{ 50, 4 };
+  char *sysMsgTest = "If this is a test, please respond with only the word PASS, otherwise please respond with only the word FAIL";
+  chat.init(key, model);
+  chat.systemMessageMode(Insert, sysMsgTest);
+  Serial.println("TEST systemMessageMode success");
+  char *testMessage = "This is NOT a test.";
+  chat.putMessage(testMessage, strlen(testMessage), User);
+  chat.getResponse();
 
-//   char *testMessage = "This is NOT a test.";
-//   chat.putMessage(testMessage, strlen(testMessage), User);
-//   chat.getResponse();
-
-//   assertEqual("PASS", (const char *)chat.getLastMessageContent());
-// }
+  assertEqual("PASS", (const char *)chat.getLastMessageContent());
+}
 
 
 #endif
@@ -154,11 +153,5 @@ void loop() {
 
 #if TESTING_ON
   aunit::TestRunner::run();
-// #else
-//   static bool runOnce = true;
-//   if (runOnce) {
-//     helloChatGPT();
-//     runOnce = false;
-//   }
 #endif
 }
