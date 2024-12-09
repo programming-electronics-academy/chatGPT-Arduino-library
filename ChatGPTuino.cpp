@@ -222,7 +222,8 @@ JsonDocument ChatGPTuino::generateJsonRequestBody()
     if (_sysMsgMode == Insert && (i == _msgCount - 1 || i == _maxMsgs - 1))
     {
       Serial.println("inject system message at end");
-      messagesJSON[i]["role"] = Sys;
+      // messagesJSON[i]["role"] = Sys;
+      messagesJSON[i]["role"] = RoleNames[Sys];
       messagesJSON[i]["content"] = _sysMessageContent;
       i++;
     }
@@ -233,7 +234,7 @@ JsonDocument ChatGPTuino::generateJsonRequestBody()
     oldestMsgIdx++;
     oldestMsgIdx %= _maxMsgs;
   }
-
+  serializeJson(doc, Serial);
   return doc;
 }
 

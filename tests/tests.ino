@@ -123,9 +123,8 @@ test(init_with_sys_msg_para_inserts_sys_msg) {
   char *sysMsgTest = "If this is a test, please respond with only the word PASS, otherwise please respond with only the word FAIL";
   chat.init(key, model);
   chat.systemMessageMode(Insert, sysMsgTest);
-  Serial.println("TEST systemMessageMode success");
-  char *testMessage = "This is NOT a test.";
-  chat.putMessage(testMessage, strlen(testMessage), User);
+  char *testMessage = "This is a test.";
+  chat.putMessage(testMessage, strlen(testMessage), Roles::User);
   chat.getResponse();
 
   assertEqual("PASS", (const char *)chat.getLastMessageContent());
