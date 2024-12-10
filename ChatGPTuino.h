@@ -1,11 +1,26 @@
 #ifndef chatGPTuino_h
 #define chatGPTuino_h
 
-// #include <sys/_stdint.h>
-#include <ArduinoJson.h>      // Handle JSON formatting for API calls
-#include <WiFiClientSecure.h> // ESP32
-#include <WiFi.h> // ESP32
+
+#include <ArduinoJson.h> // Handle JSON formatting for API calls
+#include <WiFi.h>        // ESP32
 #include <API_endpoint_cert.h>
+
+
+/**************************************************************
+ * STEVE Q1:
+ * I am trying to identify Arduino boards that use the 
+ * Arduino Core API.
+ * 
+ **************************************************************/
+#ifdef ARDUINO_GIGA
+  #define ARDUINO_CORE_API
+  typedef WiFiSSLClient SecureClient;
+#else
+  #include "WiFiClientSecure.h"
+  typedef WiFiClientSecure SecureClient;
+#endif
+
 
 #define MIN_TOKENS 50
 #define MAX_TOKENS 2000 // Used for sizing JSON response
@@ -133,9 +148,11 @@ public:
   // Functions
   JsonDocument generateJsonRequestBody();
   GetResponseCodes getResponse();
-  void postRequest(JsonDocument *pJsonRequestBody, WiFiClientSecure *pClient);
-  bool waitForServerResponse(WiFiClientSecure *pClient);
-  bool putResponseInMsgArray(WiFiClientSecure *pClient);
+
+  void postRequest(JsonDocument *pJsonRequestBody, SecureClient *pClient);
+  bool waitForServerResponse(SecureClient *pClient);
+  bool putResponseInMsgArray(SecureClient *pClient);
+
   void safe_strncpy(char *dest, size_t destSize, const char *src);
 
 private:

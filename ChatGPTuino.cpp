@@ -241,10 +241,11 @@ JsonDocument ChatGPTuino::generateJsonRequestBody()
 GetResponseCodes ChatGPTuino::getResponse()
 {
 
-  // Create a secure wifi client
-  // WiFiClient client;
-  WiFiClientSecure client;
+// Create a secure wifi client
+  SecureClient client;
+#ifndef ARDUINO_CORE_API
   client.setCACert(ROOT_CA_CERT);
+#endif
 
   // Generate JSON Request body from messages array
   JsonDocument jsonRequestBody = generateJsonRequestBody();
@@ -301,14 +302,14 @@ GetResponseCodes ChatGPTuino::getResponse()
 
 /* Function:  postRequest
  * -------------------------
- * Makes a POST request to OpenAI
+ * Sends a POST request using a WiFiClientSecure object (ESP32).
  *
- * JsonDocument * pJSONRequestBody: The JSON Request body to send with the POST
- * WiFiClientSecure * pClient: The wifi object handling the sending
+ * @param JsonDocument * pJSONRequestBody: The JSON Request body to send with the POST
+ * @param SecureClient * pClient: The wifi object handling the sending
  *
  * returns: void
  */
-void ChatGPTuino::postRequest(JsonDocument *pJsonRequestBody, WiFiClientSecure *pClient)
+void ChatGPTuino::postRequest(JsonDocument *pJsonRequestBody, SecureClient *pClient)
 {
 
 #ifdef VERBOSE_PRINTS
@@ -344,11 +345,11 @@ void ChatGPTuino::postRequest(JsonDocument *pJsonRequestBody, WiFiClientSecure *
  * Holds program in loop while waiting for response from server.
  * Times out after defined interval.
  *
- * WiFiClientSecure * pClient: The wifi object handling the response
+ * SecureClient * pClient: The wifi object handling the response
  *
  * returns: bool - 0 for timeout, 1 for success
  */
-bool ChatGPTuino::waitForServerResponse(WiFiClientSecure *pClient)
+bool ChatGPTuino::waitForServerResponse(SecureClient *pClient)
 {
 
   bool responseSuccess = true;
@@ -383,12 +384,12 @@ bool ChatGPTuino::waitForServerResponse(WiFiClientSecure *pClient)
  * -------------------------
  * Applies filter to JSON response and saves response to messages array.
  *
- * WiFiClientSecure * pClient: The wifi object handling the response
- * int numMessages:  Number of messages in the messages array
+ * @param SecureClient * pClient: The wifi object handling the response
+ * @param int numMessages:  Number of messages in the messages array
  *
  * returns: bool - 0 for failure to extract JSON, 1 for success
  */
-bool ChatGPTuino::putResponseInMsgArray(WiFiClientSecure *pClient)
+bool ChatGPTuino::putResponseInMsgArray(SecureClient *pClient)
 {
 
 #ifdef VERBOSE_PRINTS
@@ -408,7 +409,8 @@ bool ChatGPTuino::putResponseInMsgArray(WiFiClientSecure *pClient)
   filter_choices_0_message["content"] = true;
 
   // Deserialize the JSON
-#ifdef VERBOSE_PRINTS
+// #ifdef VERBOSE_PRINTS
+#if defined(VERBOSE_PRINTS) && !defined(ARDUINO_CORE_API)
   Serial.print("    | putResponseInMsgArray | ESP.getMaxAllocHeap -> ");
   Serial.println(ESP.getMaxAllocHeap());
 #endif
