@@ -241,11 +241,14 @@ JsonDocument ChatGPTuino::generateJsonRequestBody()
 GetResponseCodes ChatGPTuino::getResponse()
 {
 
-// Create a secure wifi client
+  // Create a secure wifi client
   SecureClient client;
-#ifndef ARDUINO_CORE_API
-  client.setCACert(ROOT_CA_CERT);
+
+#ifndef ARDUINO_API_VERSION
+  client.setCACert(ROOT_CA_CERT);  
+  // Works only with ESP32 boards. Have tried appendCustomCACert with the Arduino WiFi library with no success.
 #endif
+
 
   // Generate JSON Request body from messages array
   JsonDocument jsonRequestBody = generateJsonRequestBody();
@@ -408,9 +411,8 @@ bool ChatGPTuino::putResponseInMsgArray(SecureClient *pClient)
   filter_choices_0_message["role"] = true;
   filter_choices_0_message["content"] = true;
 
-  // Deserialize the JSON
-// #ifdef VERBOSE_PRINTS
-#if defined(VERBOSE_PRINTS) && !defined(ARDUINO_CORE_API)
+// Deserialize the JSON
+#if defined(VERBOSE_PRINTS) && !defined(ARDUINO_API_VERSION)
   Serial.print("    | putResponseInMsgArray | ESP.getMaxAllocHeap -> ");
   Serial.println(ESP.getMaxAllocHeap());
 #endif

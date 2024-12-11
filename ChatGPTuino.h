@@ -1,24 +1,15 @@
 #ifndef chatGPTuino_h
 #define chatGPTuino_h
 
-
 #include <ArduinoJson.h> // Handle JSON formatting for API calls
-#include <WiFi.h>        // ESP32
+#include <WiFi.h>        
 #include <API_endpoint_cert.h>
 
-
-/**************************************************************
- * STEVE Q1:
- * I am trying to identify Arduino boards that use the 
- * Arduino Core API.
- * 
- **************************************************************/
-#ifdef ARDUINO_GIGA
-  #define ARDUINO_CORE_API
-  typedef WiFiSSLClient SecureClient;
+#if defined(ESP32)
+  #include <NetworkClientSecure.h> // Previously WiFiClientSecure
+  typedef NetworkClientSecure SecureClient;
 #else
-  #include "WiFiClientSecure.h"
-  typedef WiFiClientSecure SecureClient;
+  typedef WiFiSSLClient SecureClient;
 #endif
 
 
@@ -42,7 +33,7 @@
 #define SERVER_RESPONSE_WAIT_TIME (15 * 1000) // How long to wait for a server response (seconds * 1000)
 
 // #define DEBUG_SERVER_RESPONSE_BREAKING
-#define VERBOSE_PRINTS
+// #define VERBOSE_PRINTS
 
 #define OPEN_AI_END_POINT "https://api.openai.com/v1/chat/completions"
 #define OPEN_AI_SERVER "api.openai.com"

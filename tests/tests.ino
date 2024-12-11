@@ -1,12 +1,8 @@
-#ifdef ARDUINO_GIGA
-#define ARDUINO_CORE_API
-#endif
-
-#ifndef ARDUINO_CORE_API
-
 #include <WiFi.h>  // ESP32
 #include <AUnit.h> // Testing
 #include <ChatGPTuino.h>
+
+#ifndef ARDUINO_API_VERSION
 
 #include "credentials.h"  // Network name, password, and private API key
 
