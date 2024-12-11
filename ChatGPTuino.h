@@ -1,11 +1,17 @@
 #ifndef chatGPTuino_h
 #define chatGPTuino_h
 
-// #include <sys/_stdint.h>
-#include <ArduinoJson.h>      // Handle JSON formatting for API calls
-#include <WiFiClientSecure.h> // ESP32
-#include <WiFi.h> // ESP32
+#include <ArduinoJson.h> // Handle JSON formatting for API calls
+#include <WiFi.h>        
 #include <API_endpoint_cert.h>
+
+#if defined(ESP32)
+  #include <NetworkClientSecure.h> // Previously WiFiClientSecure
+  typedef NetworkClientSecure SecureClient;
+#else
+  typedef WiFiSSLClient SecureClient;
+#endif
+
 
 #define MIN_TOKENS 50
 #define MAX_TOKENS 2000 // Used for sizing JSON response
@@ -27,7 +33,7 @@
 #define SERVER_RESPONSE_WAIT_TIME (15 * 1000) // How long to wait for a server response (seconds * 1000)
 
 // #define DEBUG_SERVER_RESPONSE_BREAKING
-#define VERBOSE_PRINTS
+// #define VERBOSE_PRINTS
 
 #define OPEN_AI_END_POINT "https://api.openai.com/v1/chat/completions"
 #define OPEN_AI_SERVER "api.openai.com"
@@ -133,9 +139,11 @@ public:
   // Functions
   JsonDocument generateJsonRequestBody();
   GetResponseCodes getResponse();
-  void postRequest(JsonDocument *pJsonRequestBody, WiFiClientSecure *pClient);
-  bool waitForServerResponse(WiFiClientSecure *pClient);
-  bool putResponseInMsgArray(WiFiClientSecure *pClient);
+
+  void postRequest(JsonDocument *pJsonRequestBody, SecureClient *pClient);
+  bool waitForServerResponse(SecureClient *pClient);
+  bool putResponseInMsgArray(SecureClient *pClient);
+
   void safe_strncpy(char *dest, size_t destSize, const char *src);
 
 private:
