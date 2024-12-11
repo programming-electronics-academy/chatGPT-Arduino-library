@@ -1,9 +1,10 @@
-#include <WiFi.h>   // ESP32
-#include <AUnit.h>  // Testing
+#include <WiFi.h>  // ESP32
+#include <AUnit.h> // Testing
 #include <ChatGPTuino.h>
-// #include "credentials.h"  // Network name, password, and private API key
 
-#include "secrets.h"  // Network name, password, and private API key
+#ifndef ARDUINO_API_VERSION
+
+#include "credentials.h"  // Network name, password, and private API key
 
 #define TESTING_ON 1
 
@@ -12,11 +13,12 @@ const char *model = "gpt-4o";
 /* Assert( expected value (Known Value), actual value(value under test)) */
 
 #if TESTING_ON
-test(ChatBox_itializes_with_valid_values) {
+test(ChatBox_itializes_with_valid_values)
+{
 
-  ChatGPTuino chat{ 0, 0 };
+  ChatGPTuino chat{0, 0};
   chat.init(test_key, model);
-  long testDocSize = 3056;  //Based on Arduino JSON 6 Assistant
+  long testDocSize = 3056; // Based on Arduino JSON 6 Assistant
   assertEqual((const char *)model, (const char *)chat.model());
   assertEqual((long)chat.maxTokens(), (long)MIN_TOKENS);
   assertEqual(chat.numMessages(), MIN_MESSAGES);
@@ -24,12 +26,14 @@ test(ChatBox_itializes_with_valid_values) {
   assertEqual(testDocSize, (long)chat.JSON_DOC_SIZE());
 }
 
-test(init_allocates_space_for_message_contexts) {
+test(init_allocates_space_for_message_contexts)
+{
 
-  ChatGPTuino chat{ 10, 5 };
+  ChatGPTuino chat{10, 5};
   chat.init(test_key, model);
 
-  for (int i = 0; i < chat.numMessages() - 1; i++) {
+  for (int i = 0; i < chat.numMessages() - 1; i++)
+  {
 
     long contentPtrA = (long)chat.contentPtrs(i);
     long contentPtrB = (long)chat.contentPtrs(i + 1);
@@ -40,9 +44,10 @@ test(init_allocates_space_for_message_contexts) {
   }
 }
 
-test(putMessage_puts_message_in_next_available_slot) {
+test(putMessage_puts_message_in_next_available_slot)
+{
 
-  ChatGPTuino chat{ 10, 4 };
+  ChatGPTuino chat{10, 4};
   chat.init(test_key, model);
 
   char *testMessage = "testing_1";
@@ -56,8 +61,9 @@ test(putMessage_puts_message_in_next_available_slot) {
   assertEqual((const char *)testMessage2, (const char *)chat.getLastMessageContent());
 }
 
-test(putMessage_assigns_default_role_of_message_to_user) {
-  ChatGPTuino chat{ 10, 4 };
+test(putMessage_assigns_default_role_of_message_to_user)
+{
+  ChatGPTuino chat{10, 4};
   chat.init(test_key, model);
 
   char *testMessage = "testing_1";
@@ -66,8 +72,9 @@ test(putMessage_assigns_default_role_of_message_to_user) {
   assertEqual(1, chat.getLastMessageRole());
 }
 
-test(putMessage_assigns_specified_role_to_message) {
-  ChatGPTuino chat{ 10, 4 };
+test(putMessage_assigns_specified_role_to_message)
+{
+  ChatGPTuino chat{10, 4};
   chat.init(test_key, model);
 
   char *testMessage = "testing_1";
@@ -76,8 +83,9 @@ test(putMessage_assigns_specified_role_to_message) {
   assertEqual(Roles::Assistant, chat.getLastMessageRole());
 }
 
-test(generateJsonRequestBody_returns_valid_Json) {
-  ChatGPTuino chat{ 10, 4 };
+test(generateJsonRequestBody_returns_valid_Json)
+{
+  ChatGPTuino chat{10, 4};
   chat.init(test_key, model);
 
   char *testMessage = "JSON body testing";
@@ -96,8 +104,9 @@ test(generateJsonRequestBody_returns_valid_Json) {
   assertEqual((const char *)chat.getLastMessageContent(), (const char *)testDoc["messages"][1]["content"]);
 }
 
-test(getResponse_puts_response_in_messages) {
-  ChatGPTuino chat{ 10, 4 };
+test(getResponse_puts_response_in_messages)
+{
+  ChatGPTuino chat{10, 4};
   chat.init(key, model);
 
   char *testMessage = "Please respond with the only the word TEST";
@@ -107,8 +116,9 @@ test(getResponse_puts_response_in_messages) {
   assertEqual("TEST", (const char *)chat.getLastMessageContent());
 }
 
-test(getResponse_puts_response_length_in_messages) {
-  ChatGPTuino chat{ 10, 4 };
+test(getResponse_puts_response_length_in_messages)
+{
+  ChatGPTuino chat{10, 4};
   chat.init(key, model);
 
   char *testMessage = "Please respond with the only the word TEST";
@@ -118,8 +128,9 @@ test(getResponse_puts_response_length_in_messages) {
   assertEqual((long)4, (long)chat.getLastMessageLength());
 }
 
-test(init_with_sys_msg_para_inserts_sys_msg) {
-  ChatGPTuino chat{ 50, 4 };
+test(init_with_sys_msg_para_inserts_sys_msg)
+{
+  ChatGPTuino chat{50, 4};
   char *sysMsgTest = "If this is a test, please respond with only the word PASS, otherwise please respond with only the word FAIL";
   chat.init(key, model);
   chat.systemMessageMode(Insert, sysMsgTest);
@@ -130,16 +141,17 @@ test(init_with_sys_msg_para_inserts_sys_msg) {
   assertEqual("PASS", (const char *)chat.getLastMessageContent());
 }
 
-
 #endif
 
-void setup() {
+void setup()
+{
   Serial.begin(115200);
 
   // WiFi Setup
   WiFi.begin(ssid, password);
 
-  while (WiFi.status() != WL_CONNECTED) {
+  while (WiFi.status() != WL_CONNECTED)
+  {
     delay(500);
     Serial.print(".");
   }
@@ -148,9 +160,12 @@ void setup() {
   Serial.println(WiFi.localIP());
 }
 
-void loop() {
+void loop()
+{
 
 #if TESTING_ON
   aunit::TestRunner::run();
 #endif
 }
+
+#endif
