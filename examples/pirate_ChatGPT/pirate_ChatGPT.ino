@@ -1,7 +1,6 @@
 #include <ChatGPTuino.h>
 #include <WiFi.h>  // ESP32
-// #include "credentials.h"  // Network name, password, and private API key
-#include "secrets.h"  // Network name, password, and private API key
+#include "credentials.h"  // Network name, password, and private API key
 
 // A quick primer on the chatGPT API https://www.programmingelectronics.com/chatgpt-api/
 const int TOKENS = 100;  // How lengthy a response you want, every token is about 3/4 a word
